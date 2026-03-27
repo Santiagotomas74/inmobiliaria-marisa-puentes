@@ -37,7 +37,7 @@ export default function PropertyFilters({ filters, setFilters }: any) {
             Localidad
           </label>
           <input
-            placeholder="Ej: Palermo"
+            placeholder="Ej: San Miguel"
             value={filters.city}
             onChange={(e) =>
               setFilters({ ...filters, city: e.target.value })

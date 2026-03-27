@@ -22,10 +22,13 @@ export default function FeaturedProperties() {
         {/* 🏷 HEADER */}
         <div className="flex justify-between items-center mb-10">
           <div>
-            <p className="text-blue-600 text-sm font-semibold mb-2">
-              NUESTRA SELECCIÓN
-            </p>
+           <div className="mb-1 flex items-center gap-4 group">
+  <div className="w-12 h-[2px] bg-blue-600 rounded-full transition-all duration-300 group-hover:w-20"></div>
 
+  <h2 className="text-blue-600 font-semibold tracking-wide uppercase text-sm">
+    Nuestra selección
+  </h2>
+</div>
             <h2 className="text-4xl font-bold text-gray-900">
               Propiedades{" "}
               <span className="text-blue-600">Destacadas</span>

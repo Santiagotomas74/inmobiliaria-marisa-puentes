@@ -35,9 +35,14 @@ export default function AboutUs() {
 
         {/* 📄 DERECHA */}
         <div>
-          <p className="text-blue-600 text-sm font-semibold mb-3">
-            Sobre Nosotros
-          </p>
+              <div className=" flex items-center gap-4 group">
+  <div className="w-12 h-[2px] bg-blue-600 rounded-full transition-all duration-300 group-hover:w-20"></div>
+
+  <h2 className="text-blue-600 font-semibold tracking-wide uppercase text-sm">
+   Sobre Nosotros
+  </h2>
+</div>
+       
 
           <h2 className="text-4xl font-bold leading-tight text-gray-800">
             Hacemos realidad el sueño de{" "}
@@ -59,7 +64,7 @@ export default function AboutUs() {
                 🏆
               </div>
               <div>
-                <h4 className="font-semibold">Líderes del Mercado</h4>
+                <h4 className="font-semibold text-black">Líderes del Mercado</h4>
                 <p className="text-sm text-gray-500">
                   Top en satisfacción del cliente por 3 años.
                 </p>
@@ -71,7 +76,7 @@ export default function AboutUs() {
                 👨‍💼
               </div>
               <div>
-                <h4 className="font-semibold">Agentes Expertos</h4>
+                <h4 className="font-semibold text-black">Agentes Expertos</h4>
                 <p className="text-sm text-gray-500">
                   Profesionales altamente capacitados.
                 </p>
@@ -83,7 +88,7 @@ export default function AboutUs() {
                 ⏰
               </div>
               <div>
-                <h4 className="font-semibold">Soporte 24/7</h4>
+                <h4 className="font-semibold text-black">Soporte 24/7 </h4>
                 <p className="text-sm text-gray-500">
                   Siempre disponibles para ayudarte.
                 </p>
@@ -95,7 +100,7 @@ export default function AboutUs() {
                 ✅
               </div>
               <div>
-                <h4 className="font-semibold">Transparencia Total</h4>
+                <h4 className="font-semibold text-black">Transparencia Total</h4>
                 <p className="text-sm text-gray-500">
                   Sin sorpresas, todo claro.
                 </p>
@@ -106,7 +111,9 @@ export default function AboutUs() {
 
           {/* 🔘 CTA */}
           <button className="mt-8 bg-black text-white px-6 py-3 rounded-full hover:bg-gray-800 transition">
+            <a href="/nosotros">
             Conoce más sobre nosotros →
+            </a>
           </button>
         </div>
       </div>
