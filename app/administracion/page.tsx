@@ -18,7 +18,7 @@ export default function Login() {
   setLoading(true);
 
   try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_URL}/api/login`, {
+    const res = await fetch(`/api/login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, password }),

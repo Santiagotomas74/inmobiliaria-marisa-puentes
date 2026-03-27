@@ -24,7 +24,7 @@ export default function PropertiesPage() {
   // 📡 Traer propiedades
   useEffect(() => {
     const fetchProperties = async () => {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_URL}/api/properties`)
+      const res = await fetch(`/api/properties`)
       const data = await res.json();
       setProperties(data);
     };

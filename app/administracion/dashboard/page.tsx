@@ -47,20 +47,20 @@ export default function AdminPage() {
   const [mensajes, setMensajes] = useState<Message[]>([]);
 
   const fetchProperties = async () => {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_URL}/api/properties`);
+    const res = await fetch(`/api/properties`);
     const data = await res.json();
     setProperties(data);
     console.log(data);
   };
 
   const fetchTasaciones = async () => {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_URL}/api/valuations`);
+    const res = await fetch(`/api/valuations`);
     const data = await res.json();
     setTasaciones(data);
   };
 
   const fetchMensajes = async () => {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_URL}/api/messages`);
+    const res = await fetch(`/api/messages`);
     const data = await res.json();
     setMensajes(data);
   };
@@ -74,7 +74,7 @@ export default function AdminPage() {
   const handleDelete = async (id: number) => {
     if (!confirm("¿Eliminar propiedad?")) return;
 
-    await fetch(`${process.env.NEXT_PUBLIC_URL}/api/properties/${id}`, {
+    await fetch(`/api/properties/${id}`, {
       method: "DELETE",
     });
 
