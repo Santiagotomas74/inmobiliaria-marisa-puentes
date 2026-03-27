@@ -4,7 +4,7 @@ import { query } from "@/db";
 export async function PUT(req: NextRequest) {
   try {
     const { property_id, media_id } = await req.json();
-    console.log(property_id, media_id)
+
 
     await query(
       `UPDATE property_media SET is_main = false WHERE property_id = $1`,
