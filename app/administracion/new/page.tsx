@@ -65,7 +65,7 @@ export default function NewPropertyPage() {
       setLoading(true);
 
       // 1️⃣ CREAR PROPIEDAD
-      const res = await fetch("/api/properties", {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_URL}/api/properties`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -110,7 +110,7 @@ export default function NewPropertyPage() {
         const uploadData = await uploadRes.json();
 
         // 💾 guardar en DB
-        await fetch("/api/property-media", {
+        await fetch(`${process.env.NEXT_PUBLIC_URL}/api/property-media`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",

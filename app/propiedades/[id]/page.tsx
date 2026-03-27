@@ -14,7 +14,7 @@ export default function PropertyDetail() {
 
   useEffect(() => {
     const fetchProperty = async () => {
-      const res = await fetch(`/api/properties/${id}`);
+      const res = await fetch(`${process.env.NEXT_PUBLIC_URL}/api/properties/${id}`);
       const data = await res.json();
 
       setProperty(data);

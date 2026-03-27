@@ -36,7 +36,7 @@ export default function EditProperty() {
   useEffect(() => {
     const fetchProperty = async () => {
       try {
-        const res = await fetch(`/api/properties/${id}`);
+        const res = await fetch(`${process.env.NEXT_PUBLIC_URL}/api/properties/${id}`);
         const data = await res.json();
 
         setForm({
@@ -80,7 +80,7 @@ export default function EditProperty() {
     try {
       setLoading(true);
 
-      await fetch(`/api/properties/${id}`, {
+      await fetch(`${process.env.NEXT_PUBLIC_URL}/api/properties/${id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -125,7 +125,7 @@ export default function EditProperty() {
 
       const data = await res.json();
 
-      const dbRes = await fetch("/api/property-media", {
+      const dbRes = await fetch(`${process.env.NEXT_PUBLIC_URL}/api/property-media`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -151,7 +151,7 @@ export default function EditProperty() {
 
   // ❌ DELETE MEDIA
   const handleDeleteMedia = async (mediaId: number) => {
-    await fetch(`/api/property-media/${mediaId}`, {
+    await fetch(`${process.env.NEXT_PUBLIC_URL}/api/property-media/${mediaId}`, {
       method: "DELETE",
     });
 
@@ -165,7 +165,7 @@ const handleSetMain = async (mediaId: number) => {
   try {
     setSettingMainId(mediaId);
 
-    const res = await fetch("/api/property-media/set-main", {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_URL}/api/property-media/set-main`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({

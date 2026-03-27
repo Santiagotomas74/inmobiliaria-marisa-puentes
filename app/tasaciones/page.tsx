@@ -31,7 +31,7 @@ export default function TasacionPage() {
     setMessage("");
 
     try {
-      const res = await fetch("/api/valuations", {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_URL}/api/valuations`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

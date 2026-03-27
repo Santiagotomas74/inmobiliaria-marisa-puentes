@@ -21,7 +21,7 @@ export default function Navbar({ items}: NavbarProps) {
  useEffect(() => {
   const checkSession = async () => {
     try {
-      let res = await fetch("/api/me", {
+      let res = await fetch(`${process.env.NEXT_PUBLIC_URL}/api/me`, {
         method: "GET",
         credentials: "include",
       });
@@ -32,7 +32,7 @@ export default function Navbar({ items}: NavbarProps) {
 
         if (res.status === 401 && data?.error === "TokenExpired") {
           // 🔄 intentar refrescar token
-          const refreshRes = await fetch("/api/refresh", {
+          const refreshRes = await fetch(`${process.env.NEXT_PUBLIC_URL}/api/refresh`, {
             method: "POST",
             credentials: "include",
           });
@@ -40,7 +40,7 @@ export default function Navbar({ items}: NavbarProps) {
           if (!refreshRes.ok) throw new Error("Refresh failed");
 
           // 🔁 volver a intentar obtener usuario
-          res = await fetch("/api/me", {
+          res = await fetch(`${process.env.NEXT_PUBLIC_URL}/api/me`, {
             method: "GET",
             credentials: "include",
           });
@@ -73,7 +73,7 @@ export default function Navbar({ items}: NavbarProps) {
 useEffect(() => {
   const checkSessionNav = async () => {
     try {
-      let res = await fetch("/api/user/me", {
+      let res = await fetch(`${process.env.NEXT_PUBLIC_URL}/api/user/me`, {
         method: "GET",
         credentials: "include",
       });
@@ -85,7 +85,7 @@ useEffect(() => {
         // 🔄 token expirado → refrescar
         if (res.status === 401 && data?.error === "TokenExpired") {
           console.log("Token expirado, intentando refrescar...");
-          const refreshRes = await fetch("/api/refresh", {
+          const refreshRes = await fetch(`${process.env.NEXT_PUBLIC_URL}/api/refresh`, {
             method: "POST",
             credentials: "include",
           });
@@ -93,7 +93,7 @@ useEffect(() => {
           if (!refreshRes.ok) throw new Error();
 
           // 🔁 volver a pedir sesión
-          res = await fetch("/api/user/me", {
+          res = await fetch(`${process.env.NEXT_PUBLIC_URL}/api/user/me`, {
             method: "GET",
             credentials: "include",
           });
@@ -120,7 +120,7 @@ useEffect(() => {
 
 
   const handleLogout = async () => {
-  await fetch("/api/logout", {
+  await fetch(`${process.env.NEXT_PUBLIC_URL}/api/logout`, {
     method: "POST",
     credentials: "include",
   });

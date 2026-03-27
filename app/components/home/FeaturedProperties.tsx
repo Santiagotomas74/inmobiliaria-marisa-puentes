@@ -7,7 +7,7 @@ export default function FeaturedProperties() {
 
   useEffect(() => {
     const fetchFeatured = async () => {
-      const res = await fetch("/api/properties?featured=true");
+      const res = await fetch(`${process.env.NEXT_PUBLIC_URL}/api/properties?featured=true`);
       const data = await res.json();
       setProperties(data);
     };
