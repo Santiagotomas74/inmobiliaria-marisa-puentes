@@ -5,13 +5,9 @@ export default function PropertyValuationCTA() {
     <section className="relative h-[500px] flex items-center justify-center overflow-hidden">
       
       {/* 🖼 BACKGROUND */}
-      <img
-        src="/cta-bg.jpg" // 👈 tu imagen
-        className="absolute inset-0 w-full h-full object-cover"
-      />
 
-      {/* 🌑 OVERLAY */}
-      <div className="absolute inset-0 bg-black/50" />
+      {/* 🔵 OVERLAY AZUL PRO */}
+      <div className="absolute inset-0 bg-gradient-to-br from-blue-600 to-blue-800" />
 
       {/* 📝 CONTENIDO */}
       <div className="relative max-w-6xl mx-auto px-6 w-full flex items-center justify-between">
@@ -35,7 +31,7 @@ export default function PropertyValuationCTA() {
           </button>
         </div>
 
-        {/* 🏷 TEXTO GRANDE DERECHA */}
+        {/* 🏷 TEXTO DERECHA */}
         <div className="hidden md:block text-right text-white max-w-xl">
           <h3 className="text-5xl font-light leading-tight">
             TU PROPIEDAD <br />

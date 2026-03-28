@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
-import { BedDouble, Bath, RulerDimensionLine, MapPinHouse, DoorClosed, Calendar, BadgeCheck, Car } from 'lucide-react';
+import { BedDouble, Bath, RulerDimensionLine, MapPinHouse, DoorClosed, Calendar, BadgeCheck, Warehouse, HousePlus, SolarPanel } from 'lucide-react';
 
 
 export default function PropertyDetail() {
@@ -26,10 +26,35 @@ export default function PropertyDetail() {
 
   if (!property) {
     return (
-      <div className="h-screen flex items-center justify-center text-gray-500">
-        Cargando propiedad...
+  <div className="animate-pulse max-w-6xl mx-auto p-6 ">
+    
+    {/* 🖼 Imagen principal */}
+    <div className="w-full h-[400px] bg-gray-300 rounded-2xl mb-6" />
+
+    {/* 📄 Info */}
+    <div className="space-y-4">
+      <div className="h-8 bg-gray-300 rounded w-2/3" />
+      <div className="h-5 bg-gray-200 rounded w-1/2" />
+
+      {/* 💰 Precio */}
+      <div className="h-6 bg-gray-300 rounded w-1/4 mt-4" />
+
+      {/* 📊 Features */}
+      <div className="flex gap-6 mt-6">
+        <div className="h-5 w-16 bg-gray-200 rounded" />
+        <div className="h-5 w-16 bg-gray-200 rounded" />
+        <div className="h-5 w-16 bg-gray-200 rounded" />
       </div>
-    );
+
+      {/* 📝 Descripción */}
+      <div className="space-y-2 mt-6">
+        <div className="h-4 bg-gray-200 rounded" />
+        <div className="h-4 bg-gray-200 rounded w-5/6" />
+        <div className="h-4 bg-gray-200 rounded w-4/6" />
+      </div>
+    </div>
+  </div>
+);
   }
 
   return (
@@ -98,9 +123,11 @@ export default function PropertyDetail() {
                 {property.title}
               </h1>
 
-              <p className="text-gray-500 mb-4">
-                {property.address}, {property.city}, {property.province}
-              </p>
+               {/* 📍 UBICACIÓN */}
+                   <MapPinHouse className="absolute text-black " size={18} />
+                  <p className="text-gray-500 text-sm mt-1 ml-6">
+                    {property.address}, {property.city}, {property.province}
+                  </p>
 
              {/* FEATURES */}
 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
@@ -140,26 +167,36 @@ export default function PropertyDetail() {
       <p className="text-xs text-gray-500">m²</p>
     </div>
   )}
-
+   {/* m2 techados*/}
+  {property.surface_covered && (
+    <div className="bg-gray-100 p-4 rounded-xl flex flex-col items-center justify-center text-center">
+      <HousePlus className="text-black mb-1" size={20} />
+      <p className="font-semibold text-black">
+        {property.surface_covered}
+      </p>
+      <p className="text-xs text-gray-500">m² Techados</p>
+    </div>
+  )}
+    {/* m2 terreno */}
+  {property.surface_uncovered && (
+    <div className="bg-gray-100 p-4 rounded-xl flex flex-col items-center justify-center text-center">
+      <SolarPanel className="text-black mb-1" size={20} />
+      <p className="font-semibold text-black">
+        {property.surface_uncovered}
+      </p>
+      <p className="text-xs text-gray-500">m² Descubiertos</p>
+    </div>
+  )}
   {/* GARAGE */}
   {property.garage && (
     <div className="bg-gray-100 p-4 rounded-xl flex flex-col items-center justify-center text-center">
-      <Car className="text-black mb-1" size={20} />
+      <Warehouse className="text-black mb-1" size={20} />
       <p className="font-semibold text-black">Sí</p>
       <p className="text-xs text-gray-500">Garage</p>
     </div>
   )}
 
-  {/* AÑO */}
-  {property.construction_year && (
-    <div className="bg-gray-100 p-4 rounded-xl flex flex-col items-center justify-center text-center">
-      <Calendar className="text-black mb-1" size={20} />
-      <p className="font-semibold text-black">
-        {property.construction_year}
-      </p>
-      <p className="text-xs text-gray-500">Año</p>
-    </div>
-  )}
+  
 
   {/* CONDICIÓN */}
   {property.condition && (
@@ -171,21 +208,34 @@ export default function PropertyDetail() {
       <p className="text-xs text-gray-500">Condición</p>
     </div>
   )}
+ 
 
 </div>
             </div>
 
             {/* DESCRIPCIÓN */}
             <div className="bg-white p-6 rounded-3xl shadow-md">
-              <h2 className="text-xl font-semibold mb-3 text-black">
+              {/* AÑO */}
+  {property.construction_year && (
+    <div className="bg-gray-100 p-4 rounded-xl flex flex-col items-center justify-center text-center">
+      <Calendar className="text-black mb-1" size={20} />
+      <p className="font-semibold text-black">
+        {property.construction_year}
+      </p>
+      <p className="text-xs text-gray-500">Año de construcción</p>
+    </div>
+  )}
+              <h2 className="text-xl font-semibold mb-3 mt-3 text-black">
                 Descripción
               </h2>
+              
               <p className="text-gray-700 leading-relaxed">
                 {property.description}
               </p>
             </div>
 
           </div>
+          
 
           {/* DERECHA */}
           <div className="sticky top-24 h-fit">

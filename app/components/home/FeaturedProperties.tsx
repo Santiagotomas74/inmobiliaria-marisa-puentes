@@ -1,9 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { BedDouble, Bath, RulerDimensionLine, MapPinHouse } from 'lucide-react';
 
 export default function FeaturedProperties() {
   const [properties, setProperties] = useState<any[]>([]);
+  const router = useRouter();
 
   useEffect(() => {
     const fetchFeatured = async () => {
@@ -42,19 +45,20 @@ export default function FeaturedProperties() {
 
           <a
             href="/propiedades"
-            className="hidden md:flex items-center gap-2 bg-white border px-5 py-2 rounded-full shadow hover:shadow-md transition text-gray-900"
+            className="hidden md:flex items-center gap-2 bg-black/80 border px-5 py-2 rounded-full shadow hover:shadow-md transition text-white"
           >
             Ver todas las propiedades →
           </a>
         </div>
 
         {/* 🏠 GRID */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid md:grid-cols-2 lg:grid-cols-2 gap-6">
           {properties.map((prop) => (
             <div
-              key={prop.id}
-              className="bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition duration-300 group"
-            >
+  key={prop.id}
+  onClick={() => router.push(`/propiedades/${prop.id}`)}
+  className="bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition duration-300 group cursor-pointer"
+>
               {/* 🖼 IMAGEN */}
               <div className="relative">
                 <img
@@ -63,17 +67,26 @@ export default function FeaturedProperties() {
                   className="w-full h-56 object-cover group-hover:scale-105 transition duration-300"
                 />
 
-                {/* 🏷 OPERACIÓN */}
-                <span className="absolute top-3 left-3 bg-white text-black text-xs px-3 py-1 rounded-full shadow">
-                  {prop.operation?.toUpperCase()}
-                </span>
+              <span
+  className={`absolute top-3 left-3 text-xs px-3 py-1 rounded-full shadow text-white
+    ${
+      prop.operation === "venta"
+        ? "bg-orange-400"
+        : prop.operation === "alquiler"
+        ? "bg-green-600"
+        : "bg-gray-500"
+    }
+  `}
+>
+  {prop.operation?.toUpperCase()}
+</span>
 
                 {/* 💰 PRECIO */}
-<span className="absolute bottom-3 left-3 bg-black text-white text-sm px-3 py-1 rounded-lg shadow">
+<span className="absolute bottom-3 left-3 bg-black text-white font-bold text-sm px-3 py-1 rounded-lg shadow">
   {prop.price
     ? prop.operation === "alquiler"
-      ? `USD $${prop.price.toLocaleString()}/mes`
-      : `USD $${prop.price.toLocaleString()}`
+      ? `U$S ${prop.price.toLocaleString()}/mes`
+      : `U$S ${prop.price.toLocaleString()}`
     : prop.price_ars
     ? prop.operation === "alquiler"
       ? `ARS $${prop.price_ars.toLocaleString()}/mes`
@@ -90,16 +103,56 @@ export default function FeaturedProperties() {
                   {prop.title}
                 </h3>
 
-                <p className="text-gray-500 text-sm mt-1 truncate">
-                  {prop.address}
-                </p>
+                 {/* 📍 UBICACIÓN */}
+                   <MapPinHouse className="absolute text-black mt-1" size={18} />
+                  <p className="text-gray-500 text-sm mt-1 ml-6">
+                    {prop.address}, {prop.city}, {prop.province}
+                  </p>
 
-                {/* 📊 FEATURES */}
-                <div className="flex justify-between mt-4 text-sm text-gray-600">
-                  <span>🛏 {prop.bedrooms || 0}</span>
-                  <span>🛁 {prop.bathrooms || 0}</span>
-                  <span>📐 {prop.surface_total || 0} m²</span>
-                </div>
+                                 {/* 🏠 FEATURES */}
+<div className="mt-2 border-t  border-gray-200 py-3">
+
+  <div className="flex items-center justify-between  rounded-2xl ">
+
+    {/* 🛏 Dormitorios */}
+    <div className="flex flex-col items-center flex-1">
+      <div className="bg-blue-600 text-white p-3 rounded-full mb-2">
+      <BedDouble />
+      </div>
+      <p className="font-bold text-lg text-gray-800">
+        {prop.bedrooms || 0}
+      </p>
+      <p className="text-sm text-gray-500">Dorm</p>
+    </div>
+
+    <div className="h-10 w-px bg-gray-200" />
+
+    {/* 🛁 Baños */}
+    <div className="flex flex-col items-center flex-1">
+      <div className="bg-blue-600 text-white p-3 rounded-full mb-2">
+        <Bath />
+      </div>
+      <p className="font-bold text-lg text-gray-800">
+        {prop.bathrooms || 0}
+      </p>
+      <p className="text-sm text-gray-500">Baños</p>
+    </div>
+
+    <div className="h-10 w-px bg-gray-200" />
+
+    {/* 📐 Superficie */}
+    <div className="flex flex-col items-center flex-1">
+      <div className="bg-blue-600 text-white p-3 rounded-full mb-2">
+        <RulerDimensionLine />
+      </div>
+      <p className="font-bold text-lg text-gray-800">
+        {prop.surface_total || 0}
+      </p>
+      <p className="text-sm text-gray-500">m²</p>
+    </div>
+
+  </div>
+</div>
               </div>
             </div>
           ))}

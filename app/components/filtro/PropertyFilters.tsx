@@ -62,6 +62,10 @@ export default function PropertyFilters({ filters, setFilters }: any) {
             <option value="casa">Casa</option>
             <option value="departamento">Departamento</option>
             <option value="terreno">Terreno</option>
+            <option value="Chalet">Chalet</option>
+            <option value="PH">PH</option>
+            <option value="Condominio">Condominio</option>
+            <option value="Casa Quinta">Casa Quinta</option>
           </select>
         </div>
 

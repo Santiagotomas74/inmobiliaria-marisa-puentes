@@ -67,12 +67,14 @@ export async function PUT(
     bedrooms = $10,
     bathrooms = $11,
     surface_total = $12,
-    garage = $13,
-    condition = $14,
-    rooms = $15,
-    construction_year = $16,
-    is_featured = $17
-  WHERE id = $18
+    surface_covered = $13,
+    surface_uncovered = $14,
+    garage = $15,
+    condition = $16,
+    rooms = $17,
+    construction_year = $18,
+    is_featured = $19
+  WHERE id = $20
   `,
   [
     data.title,
@@ -87,6 +89,8 @@ export async function PUT(
     data.bedrooms,
     data.bathrooms,
     data.surface_total,
+    data.surface_covered,
+    data.surface_uncovered,
     data.garage,
     data.condition,
     data.rooms,
@@ -94,6 +98,7 @@ export async function PUT(
     data.is_featured,
     id,
   ]
+ 
 );
 
     return NextResponse.json({ success: true });

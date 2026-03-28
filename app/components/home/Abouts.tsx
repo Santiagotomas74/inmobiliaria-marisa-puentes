@@ -12,25 +12,7 @@ export default function AboutUs() {
             className="rounded-3xl shadow-lg w-full"
           />
 
-          {/* 📊 CARD FLOTANTE */}
-          <div className="absolute bottom-6 left-6 bg-white px-6 py-4 rounded-2xl shadow-lg flex items-center gap-4">
-            
-            {/* 👥 AVATARES */}
-            <div className="flex -space-x-2">
-              <img src="/user1.jpg" className="w-8 h-8 rounded-full border-2 border-white" />
-              <img src="/user2.jpg" className="w-8 h-8 rounded-full border-2 border-white" />
-              <img src="/user3.jpg" className="w-8 h-8 rounded-full border-2 border-white" />
-              <div className="w-8 h-8 bg-black text-white text-xs flex items-center justify-center rounded-full border-2 border-white">
-                +2k
-              </div>
-            </div>
-
-            {/* ⭐ RATING */}
-            <div>
-              <p className="text-lg font-bold">4.9/5</p>
-              <p className="text-xs text-gray-500">Calificación</p>
-            </div>
-          </div>
+        
         </div>
 
         {/* 📄 DERECHA */}
@@ -50,7 +32,7 @@ export default function AboutUs() {
           </h2>
 
           <p className="text-gray-500 mt-4">
-            En InmoMundo, redefinimos la experiencia inmobiliaria combinando
+            En Marisa Puentes, redefinimos la experiencia inmobiliaria combinando
             tecnología de punta con un servicio humano excepcional.
             Tu tranquilidad es nuestra prioridad.
           </p>
@@ -58,30 +40,8 @@ export default function AboutUs() {
           {/* 🧩 FEATURES */}
           <div className="grid grid-cols-2 gap-6 mt-8">
 
-            {/* ITEM */}
-            <div className="flex gap-3">
-              <div className="bg-white p-3 rounded-xl shadow">
-                🏆
-              </div>
-              <div>
-                <h4 className="font-semibold text-black">Líderes del Mercado</h4>
-                <p className="text-sm text-gray-500">
-                  Top en satisfacción del cliente por 3 años.
-                </p>
-              </div>
-            </div>
+            
 
-            <div className="flex gap-3">
-              <div className="bg-white p-3 rounded-xl shadow">
-                👨‍💼
-              </div>
-              <div>
-                <h4 className="font-semibold text-black">Agentes Expertos</h4>
-                <p className="text-sm text-gray-500">
-                  Profesionales altamente capacitados.
-                </p>
-              </div>
-            </div>
 
             <div className="flex gap-3">
               <div className="bg-white p-3 rounded-xl shadow">

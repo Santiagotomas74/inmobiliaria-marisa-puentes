@@ -22,6 +22,8 @@ export default function EditProperty() {
     bedrooms: "",
     bathrooms: "",
     surface_total: "",
+    surface_covered: "",
+    surface_uncovered: "",
     construction_year: "",
     garage: false,
     is_featured: false,
@@ -239,6 +241,10 @@ const handleSetMain = async (mediaId: number) => {
         <option value="casa">Casa</option>
         <option value="departamento">Departamento</option>
         <option value="terreno">Terreno</option>
+         <option value="Chalet">Chalet</option>
+            <option value="PH">PH</option>
+            <option value="Condominio">Condominio</option>
+            <option value="Casa Quinta">Casa Quinta</option>
       </select>
     </div>
 
@@ -318,6 +324,15 @@ const handleSetMain = async (mediaId: number) => {
     <div className="flex flex-col gap-1">
       <label className="label">Superficie (m²)</label>
       <input type="number" name="surface_total" value={form.surface_total || ""} onChange={handleChange} className="input" />
+    </div>
+
+    <div className="flex flex-col gap-1">
+      <label className="label">Superficie techado (m²)</label>
+      <input type="number" name="surface_covered" value={form.surface_covered || ""} onChange={handleChange} className="input" />
+    </div>
+    <div className="flex flex-col gap-1">
+      <label className="label">Superficie descubierta (m²)</label>
+      <input type="number" name="surface_uncovered" value={form.surface_uncovered || ""} onChange={handleChange} className="input" />
     </div>
   </div>
 

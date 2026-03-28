@@ -141,6 +141,8 @@ export async function POST(req: Request) {
       bedrooms: data.bedrooms || null,
       bathrooms: data.bathrooms || null,
       surface_total: data.surface_total || null,
+      surface_covered: data.surface_covered || null,
+      surface_uncovered: data.surface_uncovered || null,
       condition: data.condition || null,
       construction_year: data.construction_year || null,
       garage: data.garage || false,
@@ -167,6 +169,8 @@ export async function POST(req: Request) {
         bedrooms,
         bathrooms,
         surface_total,
+        surface_covered,
+        surface_uncovered,
         condition,
         construction_year,
         garage,
@@ -175,7 +179,7 @@ export async function POST(req: Request) {
       )
       VALUES (
         $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,
-        $11,$12,$13,$14,$15,$16,$17,$18,$19,$20
+        $11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22
       )
       RETURNING id
       `,
@@ -195,6 +199,8 @@ export async function POST(req: Request) {
         propertyData.bedrooms,
         propertyData.bathrooms,
         propertyData.surface_total,
+        propertyData.surface_covered,
+        propertyData.surface_uncovered,
         propertyData.condition,
         propertyData.construction_year,
         propertyData.garage,

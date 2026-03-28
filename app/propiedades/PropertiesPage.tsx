@@ -3,13 +3,14 @@
 import { useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import PropertyFilters from "@/app/components/filtro/PropertyFilters";
-import { BedDouble, Bath, RulerDimensionLine, MapPinHouse } from 'lucide-react';
+import { BedDouble, Bath, RulerDimensionLine, MapPinHouse,  House } from 'lucide-react';
 
 
 export default function PropertiesPage() {
   const [properties, setProperties] = useState<any[]>([]);
   const searchParams = useSearchParams();
   const router = useRouter();
+  const [loading, setLoading] = useState(true);
 
   const [filters, setFilters] = useState({
     operation: "",
@@ -21,12 +22,17 @@ export default function PropertiesPage() {
     currency: "usd",
   });
 
-  // 📡 Traer propiedades
   useEffect(() => {
     const fetchProperties = async () => {
-      const res = await fetch(`/api/properties`)
-      const data = await res.json();
-      setProperties(data);
+      try {
+        const res = await fetch(`/api/properties`);
+        const data = await res.json();
+        setProperties(data);
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setLoading(false);
+      }
     };
 
     fetchProperties();
@@ -78,7 +84,7 @@ export default function PropertiesPage() {
       return false;
 
     const price =
-      filters.currency === "usd" ? prop.price_usd : prop.price_ars;
+      filters.currency === "usd" ? prop.price : prop.price_ars;
 
     if (filters.minPrice && price < Number(filters.minPrice))
       return false;
@@ -108,9 +114,10 @@ return (
 
           {/* 📊 RESULTADOS */}
           <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-8 gap-4 text-white">
-            <p className="text-gray-300">
-              {filteredProperties.length} propiedades encontradas
-            </p>
+         <p className="flex items-center gap-2 text-black bg-white/90 px-5 py-2 rounded-full w-fit">
+  <House size={18} />
+  {filteredProperties.length} propiedades encontradas
+</p>
  {/* 📊 RESULTADOS 
             <button
               onClick={() =>
@@ -131,7 +138,31 @@ return (
           </div>
 
           {/* 🏠 GRID */}
-          <div className="grid sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-8">
+          <div className="grid sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-3 gap-6">
+             {/* 💀 SKELETON */}
+              {loading &&
+                [...Array(8)].map((_, i) => (
+                  <div
+                    key={i}
+                    className="bg-white rounded-3xl overflow-hidden shadow animate-pulse"
+                  >
+                    {/* Imagen */}
+                    <div className="w-full h-56 bg-gray-300" />
+
+                    <div className="p-5 space-y-3">
+                      <div className="h-6 bg-gray-300 rounded w-1/2" />
+                      <div className="h-4 bg-gray-200 rounded w-3/4" />
+
+                      <div className="flex justify-between mt-6">
+                        <div className="h-10 w-10 bg-gray-200 rounded-full" />
+                        <div className="h-10 w-10 bg-gray-200 rounded-full" />
+                        <div className="h-10 w-10 bg-gray-200 rounded-full" />
+                      </div>
+
+                      <div className="h-10 bg-gray-300 rounded-xl mt-4" />
+                    </div>
+                  </div>
+                ))}
             {filteredProperties.map((prop) => (
               <div
                 key={prop.id}
@@ -164,7 +195,7 @@ return (
                   {/* 💰 PRECIO */}
                   <p className="text-xl font-bold text-blue-600">
                     {prop.price
-                      ? `USD ${prop.price.toLocaleString()}`
+                      ? `U$S ${prop.price.toLocaleString()}`
                       : `ARS ${prop.price_ars?.toLocaleString()}`}
                   </p>
 
@@ -180,7 +211,7 @@ return (
                   </p>
 
                  {/* 🏠 FEATURES */}
-<div className="mt-5 border-t border-b border-gray-200 py-5">
+<div className="mt-2 border-t border-b border-gray-200 py-3">
 
   <div className="flex items-center justify-between  rounded-2xl ">
 
@@ -226,7 +257,7 @@ return (
                   {/* 🔘 BOTÓN */}
                   <a
                     href={`/propiedades/${prop.id}`}
-                    className="block text-center mt-5 bg-gradient-to-r from-blue-600 to-blue-800 text-white py-2 rounded-xl hover:opacity-90 transition"
+                    className="block text-center  bg-gradient-to-r from-blue-600 to-blue-800 text-white py-2 rounded-xl hover:opacity-90 transition"
                   >
                     Ver detalle
                   </a>

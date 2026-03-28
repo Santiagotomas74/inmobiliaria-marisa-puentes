@@ -20,6 +20,8 @@ export default function NewPropertyPage() {
     bedrooms: "",
     bathrooms: "",
     surface_total: "",
+    surface_covered: "",
+    surface_uncovered: "",
     condition: "",
     construction_year: "",
     garage: false,
@@ -183,7 +185,11 @@ export default function NewPropertyPage() {
             <option value="">Tipo</option>
             <option value="casa">Casa</option>
             <option value="departamento">Departamento</option>
-            <option value="terreno">Terreno</option>
+             <option value="terreno">Terreno</option>
+            <option value="Chalet">Chalet</option>
+            <option value="PH">PH</option>
+            <option value="Condominio">Condominio</option>
+            <option value="Casa Quinta">Casa Quinta</option>
           </select>
 
           <select
@@ -291,6 +297,22 @@ export default function NewPropertyPage() {
             name="surface_total"
             placeholder="m²"
             value={form.surface_total}
+            onChange={handleChange}
+            className="border p-3 rounded-lg text-black"
+          />
+          <input
+            type="number"
+            name="surface_covered"
+            placeholder="m² Techados"
+            value={form.surface_covered}
+            onChange={handleChange}
+            className="border p-3 rounded-lg text-black"
+          />
+          <input
+            type="number"
+            name="surface_uncovered"
+            placeholder="m² Terreno"
+            value={form.surface_uncovered}
             onChange={handleChange}
             className="border p-3 rounded-lg text-black"
           />

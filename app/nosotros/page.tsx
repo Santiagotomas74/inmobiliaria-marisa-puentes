@@ -8,11 +8,8 @@ export default function NosotrosPage() {
 
       {/* 🖼 HERO */}
       <section className="relative h-[350px] flex items-center justify-center text-center text-white">
-        <img
-          src="/hero-nosotros.jpg"
-          className="absolute inset-0 w-full h-full object-cover"
-        />
-        <div className="absolute inset-0 bg-black/60" />
+       
+        <div className="absolute inset-0 bg-black/60 bg-gradient-to-br from-red-600 to-blue-800" />
 
         <div className="relative z-10">
           <h1 className="text-4xl md:text-5xl font-bold">
@@ -25,15 +22,11 @@ export default function NosotrosPage() {
       </section>
 
       {/* 🏢 HISTORIA */}
-      <section className="max-w-6xl mx-auto px-6 py-16 grid md:grid-cols-2 gap-10 items-center">
+      <section className="max-w-6xl mx-auto px-6 py-16 grid md:grid-cols-2 gap-10 items-center  ">
 
-        <img
-          src="/about.jpg"
-          className="rounded-3xl shadow-xl"
-        />
-
+      
         <div>
-          <h2 className="text-3xl font-bold mb-4 text-gray-800">
+          <h2 className="text-3xl font-bold mb-4 text-gray-800 ">
             Nuestra Historia
           </h2>
 
@@ -97,41 +90,10 @@ export default function NosotrosPage() {
         </div>
       </section>
 
-      {/* 👥 EQUIPO */}
-      <section className="max-w-6xl mx-auto px-6 py-16">
-
-        <h2 className="text-3xl font-bold text-center mb-10 text-gray-800">
-          Nuestro Equipo
-        </h2>
-
-        <div className="grid md:grid-cols-3 gap-8">
-
-          {[1,2,3].map((i) => (
-            <div
-              key={i}
-              className="bg-white rounded-3xl shadow-md overflow-hidden text-center"
-            >
-              <img
-                src={`/team${i}.jpg`}
-                className="w-full h-64 object-cover"
-              />
-
-              <div className="p-6">
-                <h3 className="font-semibold text-lg text-black">
-                  Asesor Inmobiliario
-                </h3>
-                <p className="text-gray-500 text-sm">
-                  Especialista en ventas
-                </p>
-              </div>
-            </div>
-          ))}
-
-        </div>
-      </section>
+ 
 
       {/* 🚀 CTA */}
-      <section className="bg-gradient-to-r from-black to-gray-800 text-white py-16 text-center">
+      <section className="bg-gradient-to-r from-green-800 to-green-400 text-white py-16 text-center">
 
         <h2 className="text-3xl font-bold mb-4">
           ¿Querés vender o comprar una propiedad?
