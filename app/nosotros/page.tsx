@@ -93,14 +93,14 @@ export default function NosotrosPage() {
  
 
       {/* 🚀 CTA */}
-      <section className="bg-gradient-to-r from-green-800 to-green-400 text-white py-16 text-center">
+      <section className="bg-gradient-to-r from-blue-600 to-red-800 text-white py-16 text-center">
 
         <h2 className="text-3xl font-bold mb-4">
           ¿Querés vender o comprar una propiedad?
         </h2>
 
         <p className="text-gray-300 mb-6">
-          Estamos listos para ayudarte en cada paso
+          Estamos listos para ayudarte en cada paso dfsd
         </p>
 
         <a
