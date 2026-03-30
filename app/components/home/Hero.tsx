@@ -118,7 +118,7 @@ export default function Hero() {
               {/* 💰 PRECIO */}
               <input
                 type="number"
-                placeholder="Precio máx"
+                placeholder="Precio máx USD"
                 value={price}
                 onChange={(e) => setPrice(e.target.value)}
                 className="bg-white px-4 py-3 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-black"

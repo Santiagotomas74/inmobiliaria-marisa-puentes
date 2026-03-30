@@ -13,7 +13,7 @@ export async function POST(req: Request) {
       );
     }
 
-    const { rows } = await query(
+    const result = await query(
       `
       INSERT INTO messages (
         name,
@@ -31,10 +31,10 @@ export async function POST(req: Request) {
         data.message,
       ]
     );
-
-    return NextResponse.json({
-      id: rows[0].id,
-    });
+console.log("RESULT QUERY:", result);
+   return NextResponse.json({
+  id: result.rows?.[0]?.id || null,
+});
 
   } catch (error) {
     console.error(error);

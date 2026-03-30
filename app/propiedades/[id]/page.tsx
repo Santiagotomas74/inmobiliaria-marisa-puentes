@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { BedDouble, Bath, RulerDimensionLine, MapPinHouse, DoorClosed, Calendar, BadgeCheck, Warehouse, HousePlus, SolarPanel } from 'lucide-react';
+import { FaWhatsapp } from "react-icons/fa"; 
 
 
 export default function PropertyDetail() {
@@ -11,6 +12,17 @@ export default function PropertyDetail() {
   const [property, setProperty] = useState<any>(null);
   const [mainImage, setMainImage] = useState("");
   const [showModal, setShowModal] = useState(false);
+  const [showForm, setShowForm] = useState(false);
+
+  const [form, setForm] = useState({
+  name: "",
+  email: "",
+  phone: "",
+  message: "",
+});
+
+const [loading, setLoading] = useState(false);
+const [success, setSuccess] = useState(false);
 
   useEffect(() => {
     const fetchProperty = async () => {
@@ -23,7 +35,58 @@ export default function PropertyDetail() {
 
     fetchProperty();
   }, [id]);
+const handleChange = (e: any) => {
+  setForm({
+    ...form,
+    [e.target.name]: e.target.value,
+  });
+};
+const handleSubmit = async () => {
+  try {
+    setLoading(true);
 
+const fullMessage = `
+🏠 Propiedad: ${property.title}
+📍 Ubicación: ${property.city}, ${property.province}
+
+💬 Mensaje:
+${form.message}
+`;
+    const res = await fetch("/api/messages", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        name: form.name,
+        email: form.email,
+        phone: form.phone,
+        message: fullMessage, // 🔥 mensaje con info incluida
+      }),
+    });
+
+   const data = await res.json();
+
+if (!res.ok) {
+  console.error(data);
+  throw new Error(data.error || "Error al enviar");
+}
+
+    setSuccess(true);
+    setForm({
+      name: "",
+      email: "",
+      phone: "",
+      message: "",
+    });
+
+  } catch (error) {
+    console.error(error);
+    alert("Error al enviar el mensaje");
+  } finally {
+    setLoading(false);
+  }
+};
   if (!property) {
     return (
   <div className="animate-pulse max-w-6xl mx-auto p-6 ">
@@ -240,46 +303,136 @@ export default function PropertyDetail() {
           {/* DERECHA */}
           <div className="sticky top-24 h-fit">
 
-            <div className="bg-gradient-to-br from-gray-900 to-gray-800 text-white p-6 rounded-3xl shadow-xl">
+            <div className="bg-gradient-to-br from-gray-900 to-gray-800 text-white p-7 rounded-3xl shadow-2xl border border-white/10">
 
-              <h3 className="text-lg font-semibold mb-4">
-                Consultar propiedad
-              </h3>
+  {/* 🏷 TÍTULO */}
+  <h3 className="text-lg font-semibold mb-5 tracking-wide">
+    Consultar propiedad
+  </h3>
 
-              {/* PRECIO */}
-              <div className="mb-4">
-                <p className="text-2xl font-bold text-green-400">
-                  {property.price
-                    ? `USD $${property.price.toLocaleString()}`
-                    : `ARS $${property.price_ars?.toLocaleString()}`}
-                </p>
-                <p className="text-2xl font-bold text-white-400">
-             
-               ARS ${property.price_ars?.toLocaleString()}
-                </p>
-              </div>
+  {/* 💰 PRECIO */}
+  <div className="mb-6">
+    <p className="text-3xl font-bold text-green-400">
+      {property.price
+        ? `USD $${property.price.toLocaleString()}`
+        : "Consultar"}
+    </p>
 
-              {/* CTA */}
-              <a
-                href={`https://wa.me/549XXXXXXXXXX?text=Hola, quiero consultar por la propiedad: ${property.title}`}
-                target="_blank"
-                className="block text-center bg-green-500 py-3 rounded-xl font-semibold hover:bg-green-600 transition"
-              >
-                WhatsApp
-              </a>
+    {property.price_ars && (
+      <p className="text-sm text-gray-300 mt-1">
+        ARS ${property.price_ars.toLocaleString()}
+      </p>
+    )}
+  </div>
 
-              <button className="w-full mt-3 border border-white/30 py-3 rounded-xl hover:bg-white hover:text-black transition">
-                Enviar consulta
-              </button>
+  {/* 🔥 BOTONES */}
+  <div className="space-y-3">
 
-              {/* INFO */}
-              <div className="mt-6 text-sm text-gray-300">
-                <p>✔ Respuesta rápida</p>
-                <p>✔ Atención personalizada</p>
-                <p>✔ Asesoramiento profesional</p>
-              </div>
+    {/* WhatsApp */}
+    <a
+      href={`https://wa.me/5491137001152?text=Hola! Quiero consultar por la propiedad: ${property.title}`}
+      target="_blank"
+      className="flex items-center justify-center gap-2 bg-green-500 py-3 rounded-xl font-semibold hover:bg-green-600 transition shadow-md"
+    >
+      <FaWhatsapp className="text-white" />
+      <span> Contactar por WhatsApp</span>
+    </a>
 
-            </div>
+    {/* Formulario */}
+    <button
+  onClick={() => setShowForm(!showForm)}
+  className="w-full border border-white/20 py-3 rounded-xl hover:bg-white hover:text-black transition font-medium"
+>
+  Enviar una consulta
+</button>
+{showForm && (
+  <form
+    onSubmit={handleSubmit}
+    className="mt-4 space-y-3 animate-fade-in"
+  >
+    <input
+      name="name"
+      value={form.name}
+      onChange={handleChange}
+      type="text"
+      placeholder="Nombre"
+      required
+      className="w-full p-2 rounded-lg bg-white/10 border border-white/20 text-white placeholder-gray-400 outline-none"
+    />
+
+    <input
+      name="email"
+      value={form.email}
+      onChange={handleChange}
+      type="email"
+      placeholder="Email"
+      required
+      className="w-full p-2 rounded-lg bg-white/10 border border-white/20 text-white placeholder-gray-400 outline-none"
+    />
+
+    <input
+      name="phone"
+      value={form.phone}
+      onChange={handleChange}
+      placeholder="+54..."
+      className="w-full p-2 rounded-lg bg-white/10 border border-white/20 text-white placeholder-gray-400 outline-none"
+    />
+
+    <textarea
+      name="message"
+      value={form.message}
+      onChange={handleChange}
+      placeholder="Mensaje"
+      rows={3}
+      required
+      className="w-full p-2 rounded-lg bg-white/10 border border-white/20 text-white placeholder-gray-400 outline-none"
+    />
+
+    <p className="text-xs text-gray-400 mt-2">
+      Al enviar el formulario aceptás nuestra{" "}
+      <a href="/privacidad" className="underline hover:text-white">
+        Política de Privacidad
+      </a>
+    </p>
+
+    <button
+      type="submit"
+      disabled={loading}
+      className="w-full bg-blue-600 py-2 rounded-lg hover:bg-blue-700 transition disabled:opacity-50"
+    >
+      {loading ? "Enviando..." : "Enviar"}
+    </button>
+
+    {success && (
+      <p className="text-green-400 text-sm text-center">
+        ✅ Mensaje enviado correctamente
+      </p>
+    )}
+  </form>
+)}
+  </div>
+
+  {/* 🧾 BENEFICIOS */}
+  <div className="mt-6 pt-5 border-t border-white/10 space-y-2 text-sm text-gray-300">
+
+    <div className="flex items-center gap-2">
+      <span className="text-green-400">✔</span>
+      <p>Respuesta rápida</p>
+    </div>
+
+    <div className="flex items-center gap-2">
+      <span className="text-green-400">✔</span>
+      <p>Atención personalizada</p>
+    </div>
+
+    <div className="flex items-center gap-2">
+      <span className="text-green-400">✔</span>
+      <p>Asesoramiento profesional</p>
+    </div>
+
+  </div>
+
+</div>
 
           </div>
         </div>

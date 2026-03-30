@@ -111,9 +111,9 @@ export default function AdminPage() {
           </div>
 
           <div className="bg-white p-5 rounded-2xl shadow">
-            <p className="text-gray-500 text-sm">Leads nuevos</p>
+            <p className="text-gray-500 text-sm">Mensajes nuevos</p>
             <p className="text-2xl font-bold  text-black">
-              {tasaciones.length}
+              {mensajes.length}
             </p>
           </div>
         </div>

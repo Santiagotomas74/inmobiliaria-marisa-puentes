@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Phone, Mail, MessageCircle, Send } from "lucide-react";
-
+ import { FaWhatsapp } from "react-icons/fa"; 
 export default function ContactSection() {
   const [form, setForm] = useState({
     name: "",
@@ -75,18 +75,28 @@ export default function ContactSection() {
               <div className="space-y-6">
                 <div className="flex gap-4">
                   <Phone />
-                  <p>+54 11 1234-5678</p>
+                  <p>+54 11 3700-1152</p>
                 </div>
 
                 <div className="flex gap-4">
                   <Mail />
-                  <p>info@inmomundo.com</p>
+                  <p>marispuentespropiedades@yahoo.com</p>
                 </div>
 
                 <div className="flex gap-4">
                   <MessageCircle />
-                  <p>Disponible 9am - 6pm</p>
+                  <p>Disponible  9:30am - 12pm y 16pm - 19pm</p>
                 </div>
+                {/* 💬 WHATSAPP */}
+<a
+  href="https://wa.me/541137001152?text=Hola,%20quiero%20consultar%20por%20una%20propiedad"
+  target="_blank"
+  rel="noopener noreferrer"
+  className="flex items-center gap-3 bg-green-500 hover:bg-green-600 transition px-4 py-3 rounded-xl font-medium w-fit"
+>
+  <FaWhatsapp size={20} />
+  Contactar por WhatsApp
+</a>
               </div>
             </div>
           </div>
@@ -137,7 +147,12 @@ export default function ContactSection() {
                 className="border p-3 rounded-lg w-full text-gray-700"
                 required
               />
-
+<p className="text-xs text-gray-400 mt-2">
+  Al enviar el formulario aceptás nuestra{" "}
+  <a href="/privacidad" className="underline hover:text-white">
+    Política de Privacidad
+  </a>
+</p>
               <button
                 type="submit"
                 disabled={loading}
