@@ -28,7 +28,7 @@ export default function Hero() {
 
       {/* 🖼 BACKGROUND */}
       <img
-        src="https://cf.bstatic.com/xdata/images/hotel/max1024x768/84051734.jpg?k=dac1f01f5b427a2de31914a52f6f2ef1be02b7043d70a3f206bdbced71cf6e88&o="
+        src="https://images.unsplash.com/photo-1706808849827-7366c098b317?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtb2Rlcm4lMjBsdXh1cnklMjBob3VzZSUyMGV4dGVyaW9yfGVufDF8fHx8MTc3MDEwOTU0MHww&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral"
         className="absolute inset-0 w-full h-full object-cover"
       />
 

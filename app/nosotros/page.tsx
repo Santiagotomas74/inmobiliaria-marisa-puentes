@@ -1,6 +1,7 @@
 "use client";
 
 import { Users, Target, Award, Heart } from "lucide-react";
+import Footer from "../components/home/Footer";
 
 export default function NosotrosPage() {
   return (
@@ -111,7 +112,8 @@ export default function NosotrosPage() {
         </a>
 
       </section>
-
+ <Footer />
     </main>
+   
   );
 }

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { MapPin, Phone, Clock, Send } from "lucide-react";
+import Footer from "../components/home/Footer";
 
 export default function TasacionPage() {
 
@@ -66,7 +67,7 @@ export default function TasacionPage() {
 
   return (
     <main className="min-h-screen bg-gray-50 py-16 px-6">
-      <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-10">
+      <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-10 mb-10">
 
         {/* 🧾 FORM */}
         <div className="bg-white p-8 rounded-3xl shadow-xl">
@@ -221,6 +222,7 @@ export default function TasacionPage() {
         </div>
 
       </div>
+      <Footer />
     </main>
   );
 }
