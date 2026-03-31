@@ -30,7 +30,11 @@ const [success, setSuccess] = useState(false);
       const data = await res.json();
 
       setProperty(data);
-      setMainImage(data?.media?.[0]?.url || "");
+      
+     const mainImg = data?.media?.find((img: any) => img.is_main);
+
+setMainImage(mainImg?.url || data?.media?.[0]?.url || "");
+      console.log(data);
     };
 
     fetchProperty();
@@ -87,6 +91,7 @@ if (!res.ok) {
     setLoading(false);
   }
 };
+const isVideo = mainImage?.match(/\.(mp4|webm|ogg)$/i);
   if (!property) {
     return (
   <div className="animate-pulse max-w-6xl mx-auto p-6 ">
@@ -128,50 +133,90 @@ if (!res.ok) {
         {/* 🖼 HERO GALERÍA */}
         <div className="mb-10 bg-white p-4 rounded-3xl shadow-lg">
 
-          {/* Imagen principal */}
-          <div className="relative">
-            <img
-              src={mainImage}
-              onClick={() => setShowModal(true)}
-              className="w-full h-[450px] object-cover rounded-3xl cursor-pointer hover:opacity-90 transition"
-            />
+  {/* Imagen / Video principal */}
+<div className="relative bg-black/20 rounded-3xl overflow-hidden flex items-center justify-center">
 
-            {/* 🏷 BADGE */}
-            <span className="absolute top-4 left-4 bg-black text-white px-4 py-1 rounded-full text-sm">
-              {property.operation}
-            </span>
+  {isVideo ? (
+    <video
+      src={mainImage}
+      controls
+      className="w-full h-[450px] object-contain rounded-3xl"
+    />
+  ) : (
+    <img
+      src={mainImage}
+      onClick={() => setShowModal(true)}
+      className="w-full h-[450px] object-contain cursor-zoom-in transition duration-300 hover:scale-[1.02]"
+    />
+  )}
 
-            {property.is_featured && (
-              <span className="absolute top-4 right-4 bg-yellow-400 text-black px-3 py-1 rounded-full text-sm">
-                Destacada ⭐
-              </span>
-            )}
+  {/* 🔍 BADGE SOLO PARA IMAGEN */}
+  {!isVideo && (
+    <span className="absolute bottom-4 right-4 bg-white/90 text-black px-3 py-1 rounded-full text-xs font-medium shadow">
+      🔍 Click para ampliar
+    </span>
+  )}
 
-            {/* 💰 PRECIO OVERLAY */}
-            <div className="absolute bottom-4 left-4 bg-black/80 text-white px-4 py-2 rounded-xl backdrop-blur-sm">
-              <p className="text-lg font-bold">
-                {property.price
-                  ? `U$S ${property.price.toLocaleString()}`
-                  : `ARS $${property.price_ars?.toLocaleString()}`}
-              </p>
-            </div>
-          </div>
+  {/* 🎥 BADGE VIDEO */}
+  {isVideo && (
+    <span className="absolute bottom-4 right-4 bg-black/80 text-white px-3 py-1 rounded-full text-xs font-medium">
+      🎥 Video
+    </span>
+  )}
 
-          {/* Thumbnails */}
-          <div className="flex gap-3 mt-4 overflow-x-auto pb-2">
-            {property.media?.map((m: any) => (
-              <img
-                key={m.id}
-                src={m.url}
-                onClick={() => setMainImage(m.url)}
-                className={`h-20 w-32 object-cover rounded-xl cursor-pointer transition border-2 ${
-                  mainImage === m.url
-                    ? "border-black scale-105"
-                    : "border-transparent opacity-70 hover:opacity-100"
-                }`}
-              />
-            ))}
-          </div>
+  {/* 🏷 OPERACIÓN */}
+  <span className="absolute top-4 left-4 bg-black text-white px-4 py-1 rounded-full text-sm">
+    {property.operation}
+  </span>
+
+  {/* ⭐ DESTACADA */}
+  {property.is_featured && (
+    <span className="absolute top-4 right-4 bg-yellow-400 text-black px-3 py-1 rounded-full text-sm">
+      Destacada ⭐
+    </span>
+  )}
+
+</div>
+
+        {/* Thumbnails */}
+<div className="flex gap-3 mt-4 overflow-x-auto pb-2">
+  {property.media?.map((m: any) => {
+    const isVideo = m.url.match(/\.(mp4|webm|ogg)$/i);
+
+    return isVideo ? (
+      <div
+        key={m.id}
+        onClick={() => setMainImage(m.url)}
+        className={`relative h-20 w-32 rounded-xl cursor-pointer border-2 overflow-hidden ${
+          mainImage === m.url
+            ? "border-black scale-105"
+            : "border-transparent opacity-70 hover:opacity-100"
+        }`}
+      >
+        <video
+          src={m.url}
+          className="w-full h-full object-cover"
+        />
+
+        {/* 🎥 Badge video */}
+        <span className="absolute bottom-1 right-1 bg-black/80 text-white text-[10px] px-2 py-[2px] rounded">
+          Video
+        </span>
+      </div>
+    ) : (
+      <img
+        key={m.id}
+        src={m.url}
+        onClick={() => setMainImage(m.url)}
+        className={`h-20 w-32 object-cover rounded-xl cursor-pointer transition border-2 ${
+          mainImage === m.url
+            ? "border-black scale-105"
+            : "border-transparent opacity-70 hover:opacity-100"
+        }`}
+      />
+    );
+  })}
+</div>
         </div>
 
         {/* 📄 CONTENIDO */}
@@ -445,10 +490,18 @@ if (!res.ok) {
           onClick={() => setShowModal(false)}
           className="fixed inset-0 bg-black/90 flex items-center justify-center z-50 p-6"
         >
-          <img
-            src={mainImage}
-            className="max-w-5xl w-full rounded-2xl shadow-2xl"
-          />
+         {isVideo ? (
+  <video
+    src={mainImage}
+    controls
+    className="max-w-5xl w-full rounded-2xl shadow-2xl"
+  />
+) : (
+  <img
+    src={mainImage}
+    className="max-w-5xl w-full rounded-2xl shadow-2xl"
+  />
+)}
         </div>
       )}
 
