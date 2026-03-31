@@ -61,11 +61,26 @@ export default function FeaturedProperties() {
 >
               {/* 🖼 IMAGEN */}
               <div className="relative">
-                <img
-                  src={prop.main_image || "/no-image.jpg"}
-                  alt={prop.title}
-                  className="w-full h-56 object-cover group-hover:scale-105 transition duration-300"
-                />
+                 {/* 🖼 IMAGEN / 🎥 VIDEO */}
+  {prop.main_image?.match(/\.(mp4|webm|ogg)$/i) ? (
+    <div className="relative">
+      <video
+        src={prop.main_image}
+        
+        className="w-full h-60 object-cover"
+      />
+
+      {/* 🎥 Badge */}
+      <span className="absolute bottom-2 right-2 bg-black/80 text-white text-xs px-2 py-1 rounded">
+        Video
+      </span>
+    </div>
+  ) : (
+    <img
+      src={prop.main_image || "/no-image.jpg"}
+      className="w-full h-60 object-cover"
+    />
+  )}
 
               <span
   className={`absolute top-3 left-3 text-xs px-3 py-1 rounded-full shadow text-white

@@ -138,12 +138,16 @@ const isVideo = mainImage?.match(/\.(mp4|webm|ogg)$/i);
 
   {isVideo ? (
     <video
-      src={mainImage}
-      controls
-      className="w-full h-[450px] object-contain rounded-3xl"
-    />
+  src={mainImage}
+  muted
+  autoPlay
+  loop
+  playsInline
+ 
+  className="w-full h-[450px] object-contain rounded-3xl"
+/>
   ) : (
-    <img
+    <img   
       src={mainImage}
       onClick={() => setShowModal(true)}
       className="w-full h-[450px] object-contain cursor-zoom-in transition duration-300 hover:scale-[1.02]"

@@ -135,12 +135,25 @@ export default function AdminPage() {
         key={prop.id}
         className="relative bg-white rounded-2xl shadow hover:shadow-xl transition overflow-hidden"
       >
-        {/* 🖼 IMAGEN */}
-        <img
-          src={prop.main_image || "/no-image.jpg"}
-          className="w-full h-40 object-cover"
-        />
+        {/* 🖼 IMAGEN / 🎥 VIDEO */}
+  {prop.main_image?.match(/\.(mp4|webm|ogg)$/i) ? (
+    <div className="relative">
+      <video
+        src={prop.main_image}
+        className="w-full h-60 object-cover"
+      />
 
+      {/* 🎥 Badge */}
+      <span className="absolute bottom-2 right-2 bg-black/80 text-white text-xs px-2 py-1 rounded">
+        Video
+      </span>
+    </div>
+  ) : (
+    <img
+      src={prop.main_image || "/no-image.jpg"}
+      className="w-full h-60 object-cover"
+    />
+  )}
         {/* ⭐ DESTACADA */}
         {prop.is_featured && (
           <div className="absolute top-3 left-3 bg-yellow-400 text-black text-xs font-semibold px-3 py-1 rounded-full shadow-lg z-10">

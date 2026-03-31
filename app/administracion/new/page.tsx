@@ -350,54 +350,72 @@ export default function NewPropertyPage() {
           </label>
         </div>
 {/* 📸 MEDIA */}
-        <div>
-          <label className="font-semibold mb-2 block text-black">
-            Imágenes / Videos
-          </label>
+<div>
+  <label className="font-semibold mb-2 block text-black">
+    Imágenes / Videos
+  </label>
 
-          <input
-            type="file"
-            multiple
-            accept="image/*,video/*"
-            onChange={handleFiles}
-            className="border p-3 rounded-lg w-full text-black"
-          />
+  <input
+    type="file"
+    multiple
+    accept="image/*,video/*"
+    onChange={handleFiles}
+    className="border p-3 rounded-lg w-full text-black"
+  />
 
-          {/* PREVIEW */}
-          <div className="grid grid-cols-3 gap-3 mt-4">
-            {previews.map((src, i) => (
-              <div
-                key={i}
-                className={`relative border rounded-lg p-1 ${
-                  i === mainIndex ? "border-green-500" : ""
-                }`}
-              >
-                <img
-                  src={src}
-                  className="w-full h-24 object-cover rounded"
-                />
+  {/* PREVIEW */}
+  <div className="grid grid-cols-3 gap-3 mt-4">
+    {previews.map((src, i) => {
+      const isVideo = src.match(/\.(mp4|webm|ogg)$/i);
 
-                {/* ⭐ MAIN */}
-                <button
-                  type="button"
-                  onClick={() => setMainIndex(i)}
-                  className="absolute top-1 left-1 text-xs bg-black text-white px-2 py-1 rounded"
-                >
-                  {i === mainIndex ? "Principal ⭐" : "Elegir"}
-                </button>
+      return (
+        <div
+          key={i}
+          className={`relative border rounded-lg p-1 ${
+            i === mainIndex ? "border-green-500" : ""
+          }`}
+        >
+          {isVideo ? (
+            <video
+              src={src}
+              className="w-full h-24 object-cover rounded"
+            />
+          ) : (
+            <img
+              src={src}
+              className="w-full h-24 object-cover rounded"
+            />
+          )}
 
-                {/* ❌ DELETE */}
-                <button
-                  type="button"
-                  onClick={() => removeFile(i)}
-                  className="absolute top-1 right-1 text-xs bg-red-500 text-white px-2 py-1 rounded"
-                >
-                  X
-                </button>
-              </div>
-            ))}
-          </div>
+          {/* ⭐ MAIN */}
+          <button
+            type="button"
+            onClick={() => setMainIndex(i)}
+            className="absolute top-1 left-1 text-xs bg-black text-white px-2 py-1 rounded"
+          >
+            {i === mainIndex ? "Principal ⭐" : "Elegir"}
+          </button>
+
+          {/* ❌ DELETE */}
+          <button
+            type="button"
+            onClick={() => removeFile(i)}
+            className="absolute top-1 right-1 text-xs bg-red-500 text-white px-2 py-1 rounded"
+          >
+            X
+          </button>
+
+          {/* 🎥 BADGE VIDEO */}
+          {isVideo && (
+            <span className="absolute bottom-1 right-1 bg-black/80 text-white text-[10px] px-2 py-[2px] rounded">
+              Video
+            </span>
+          )}
         </div>
+      );
+    })}
+  </div>
+</div>
         {/* 🚀 BOTÓN */}
         <button
           type="submit"
