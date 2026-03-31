@@ -184,7 +184,7 @@ export default function TasacionPage() {
         <div>
           <p className="text-sm text-gray-400">Dirección</p>
           <p className="font-semibold">
-            Av. Papa Francisco 4215, San Miguel (Santa María)
+            Av. Papa Francisco 4215, Localidad Santa María, San Miguel.
           </p>
         </div>
       </div>

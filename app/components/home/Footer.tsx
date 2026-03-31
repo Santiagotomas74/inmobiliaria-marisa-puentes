@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { FaWhatsapp } from "react-icons/fa"; 
 export default function Footer() {
   return (
     <footer className="bg-[#0B1120] text-gray-400 py-16 px-6 font-sans">
@@ -54,7 +55,7 @@ export default function Footer() {
             <ul className="space-y-5 text-sm">
               <li className="flex items-start gap-3">
                 <svg className="w-5 h-5 text-blue-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-                <span>Av. Papa Francisco 4215 (ex Av. Sr. Ricaro Balbin) localidad Santa María , San Miguel. <br />Buenos Aires, Argentina</span>
+                <span>Av. Papa Francisco 4215 Localidad Santa María , San Miguel. <br />Buenos Aires, Argentina</span>
               </li>
               <li className="flex items-center gap-3">
                 <svg className="w-5 h-5 text-blue-500 flex-shrink-0" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
@@ -62,7 +63,7 @@ export default function Footer() {
               </li>
               <li className="flex items-center gap-3">
                 <svg className="w-5 h-5 text-blue-500 flex-shrink-0" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
-                <span>marispuentespropiedades@yahoo.com</span>
+                <span>marisapuentespropiedades@yahoo.com</span>
               </li>
             </ul>
           </div>
@@ -97,7 +98,7 @@ export default function Footer() {
        {/* 🔝 PARTE SUPERIOR */}
 <div className="mt-10 pt-6 flex flex-col md:flex-row justify-between items-center text-sm text-gray-500 gap-4">
 
-  <p>© 2026 InmoMundo. Todos los derechos reservados.</p>
+  <p>© 2026 Marisa Puentes Propiedades. Todos los derechos reservados.</p>
 
   <div className="flex gap-6">
     <a href="#" className="hover:text-white transition-colors">
@@ -171,9 +172,7 @@ export default function Footer() {
       aria-label="WhatsApp"
       className="bg-[#162032] text-gray-400 hover:text-white hover:bg-[#25D366] p-2.5 rounded-full transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-[#25D366]/30"
     >
-      <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
-        <path d="M20.52 3.48A11.79 11.79 0 0 0 12 .5C5.65.5.5 5.65.5 12c0 2.11.55 4.17 1.6 6L.5 23.5l5.7-1.5A11.93 11.93 0 0 0 12 23.5c6.35 0 11.5-5.15 11.5-11.5 0-3.07-1.2-5.96-3.48-8.02z"/>
-      </svg>
+     <FaWhatsapp size={20} />
     </a>
 
     {/* Web */}

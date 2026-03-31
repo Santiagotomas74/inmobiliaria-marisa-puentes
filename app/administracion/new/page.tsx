@@ -295,7 +295,7 @@ export default function NewPropertyPage() {
           <input
             type="number"
             name="surface_total"
-            placeholder="m²"
+            placeholder="m² Terreno"
             value={form.surface_total}
             onChange={handleChange}
             className="border p-3 rounded-lg text-black"
@@ -303,7 +303,7 @@ export default function NewPropertyPage() {
           <input
             type="number"
             name="surface_covered"
-            placeholder="m² Techados"
+            placeholder="m² Cubiertos"
             value={form.surface_covered}
             onChange={handleChange}
             className="border p-3 rounded-lg text-black"

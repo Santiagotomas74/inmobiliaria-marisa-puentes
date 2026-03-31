@@ -32,7 +32,7 @@ export default function AboutUs() {
           </h2>
 
           <p className="text-gray-500 mt-4">
-            En Marisa Puentes, redefinimos la experiencia inmobiliaria combinando
+            En Marisa Puentes Propiedades, redefinimos la experiencia inmobiliaria combinando
             tecnología de punta con un servicio humano excepcional.
             Tu tranquilidad es nuestra prioridad.
           </p>

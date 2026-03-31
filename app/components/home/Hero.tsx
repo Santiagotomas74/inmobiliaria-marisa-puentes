@@ -76,7 +76,7 @@ export default function Hero() {
 
           {/* 🏷 TABS */}
           <div className="flex gap-4 mb-4 flex-wrap">
-            {["venta", "alquiler", "tasar"].map((op) => (
+            {["venta", "alquiler", "tasaciones"].map((op) => (
               <button
                 key={op}
                 onClick={() => setOperation(op)}
@@ -147,7 +147,7 @@ export default function Hero() {
               </h3>
 
               <p className="text-gray-500 text-sm mb-6">
-                Te ayudamos a tasarla y venderla al mejor precio del mercado.
+                Tase su propiedad y vendela al mejor precio del mercado.
               </p>
 
               <a

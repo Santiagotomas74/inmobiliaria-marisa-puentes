@@ -3,22 +3,22 @@
 const zones = [
   {
     name: "San Miguel",
-    properties: 666,
+
     image: "/san-miugel.jpeg",
   },
   {
     name: "Muñiz",
-    properties: 192,
+
     image: "/muñiz.jpeg",
   },
   {
     name: "Bella Vista",
-    properties: 91,
+   
     image: "/bella-vista.jpeg",
   },
   {
     name: "Jose C. Paz",
-    properties: 60,
+
     image: "/jose-c-paz.jpeg",
   },
 ];
@@ -78,7 +78,7 @@ export default function ZonesSection() {
               <div className="p-4 flex justify-between items-center">
                 <div>
                   <p className="text-sm text-gray-500">
-                    {zone.properties} propiedades
+                     propiedades en zona:
                   </p>
 
                   <h3 className="font-semibold text-lg text-gray-900">

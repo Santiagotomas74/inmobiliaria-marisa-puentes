@@ -80,7 +80,7 @@ export default function ContactSection() {
 
                 <div className="flex gap-4">
                   <Mail />
-                  <p>marispuentespropiedades@yahoo.com</p>
+                  <p>marisapuentespropiedades@yahoo.com</p>
                 </div>
 
                 <div className="flex gap-4">

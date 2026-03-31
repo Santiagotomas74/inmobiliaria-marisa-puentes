@@ -322,12 +322,12 @@ const handleSetMain = async (mediaId: number) => {
     </div>
 
     <div className="flex flex-col gap-1">
-      <label className="label">Superficie (m²)</label>
+      <label className="label">Superficie Terreno (m²)</label>
       <input type="number" name="surface_total" value={form.surface_total || ""} onChange={handleChange} className="input" />
     </div>
 
     <div className="flex flex-col gap-1">
-      <label className="label">Superficie techado (m²)</label>
+      <label className="label">Superficie Cubierta (m²)</label>
       <input type="number" name="surface_covered" value={form.surface_covered || ""} onChange={handleChange} className="input" />
     </div>
     <div className="flex flex-col gap-1">

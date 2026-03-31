@@ -24,7 +24,7 @@ export default function PropertyValuationCTA() {
           </h2>
 
           <button
-            onClick={() => window.location.href = "/contacto"}
+            onClick={() => window.location.href = "/tasaciones"}
             className="mt-6 bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-600 transition w-full"
           >
             Quiero más información

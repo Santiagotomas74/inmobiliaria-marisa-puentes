@@ -101,7 +101,7 @@ export default function NosotrosPage() {
         </h2>
 
         <p className="text-gray-300 mb-6">
-          Estamos listos para ayudarte en cada paso dfsd
+          Estamos listos para ayudarte en cada paso.
         </p>
 
         <a

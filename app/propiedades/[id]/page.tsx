@@ -151,7 +151,7 @@ if (!res.ok) {
             <div className="absolute bottom-4 left-4 bg-black/80 text-white px-4 py-2 rounded-xl backdrop-blur-sm">
               <p className="text-lg font-bold">
                 {property.price
-                  ? `USD $${property.price.toLocaleString()}`
+                  ? `U$S ${property.price.toLocaleString()}`
                   : `ARS $${property.price_ars?.toLocaleString()}`}
               </p>
             </div>
@@ -227,7 +227,7 @@ if (!res.ok) {
     <div className="bg-gray-100 p-4 rounded-xl flex flex-col items-center justify-center text-center">
       <RulerDimensionLine className="text-black mb-1" size={20} />
       <p className="font-semibold text-black">{property.surface_total}</p>
-      <p className="text-xs text-gray-500">m²</p>
+      <p className="text-xs text-gray-500">m² Terreno</p>
     </div>
   )}
    {/* m2 techados*/}
@@ -237,7 +237,7 @@ if (!res.ok) {
       <p className="font-semibold text-black">
         {property.surface_covered}
       </p>
-      <p className="text-xs text-gray-500">m² Techados</p>
+      <p className="text-xs text-gray-500">m² Cubiertos</p>
     </div>
   )}
     {/* m2 terreno */}
@@ -314,7 +314,7 @@ if (!res.ok) {
   <div className="mb-6">
     <p className="text-3xl font-bold text-green-400">
       {property.price
-        ? `USD $${property.price.toLocaleString()}`
+        ? `U$S ${property.price.toLocaleString()}`
         : "Consultar"}
     </p>
 
@@ -396,8 +396,8 @@ if (!res.ok) {
     </p>
 
     <button
-      type="submit"
-      disabled={loading}
+      type="button" // 🔥 IMPORTANTE
+  onClick={handleSubmit}
       className="w-full bg-blue-600 py-2 rounded-lg hover:bg-blue-700 transition disabled:opacity-50"
     >
       {loading ? "Enviando..." : "Enviar"}
