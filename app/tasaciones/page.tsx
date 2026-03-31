@@ -163,54 +163,54 @@ export default function TasacionPage() {
         </div>
 
         {/* 📍 CARD INFORMACIÓN */}
-        <div className="bg-gradient-to-br from-gray-900 to-gray-800 text-white p-8 rounded-3xl shadow-xl flex flex-col justify-between">
+<div className="bg-gradient-to-br from-gray-900 to-gray-800 text-white p-5 md:p-8 rounded-3xl shadow-xl flex flex-col justify-between">
 
   <div>
-    <h2 className="text-2xl font-bold mb-4">
+    <h2 className="text-xl md:text-2xl font-bold mb-3 md:mb-4">
       ¿Dónde estamos ubicados?
     </h2>
 
-    <p className="text-gray-300 mb-6">
+    <p className="text-gray-300 mb-5 md:mb-6 text-sm md:text-base">
       Podés visitarnos en nuestra oficina o comunicarte por cualquiera de nuestros canales.
     </p>
 
-    <div className="space-y-6">
+    <div className="space-y-4 md:space-y-6">
 
       {/* 📍 Dirección */}
-      <div className="flex items-center gap-4">
-        <div className="bg-white/10 p-3 rounded-xl">
-          <MapPin size={20} />
+      <div className="flex gap-3 md:gap-4 items-start">
+        <div className="bg-white/10 p-2.5 md:p-3 rounded-xl">
+          <MapPin size={18} />
         </div>
         <div>
-          <p className="text-sm text-gray-400">Dirección</p>
-          <p className="font-semibold">
+          <p className="text-xs md:text-sm text-gray-400">Dirección</p>
+          <p className="font-semibold text-sm md:text-base leading-snug">
             Av. Papa Francisco 4215, Localidad Santa María, San Miguel.
           </p>
         </div>
       </div>
 
       {/* 📞 Teléfono */}
-      <div className="flex items-center gap-4">
-        <div className="bg-white/10 p-3 rounded-xl">
-          <Phone size={20} />
+      <div className="flex gap-3 md:gap-4 items-start">
+        <div className="bg-white/10 p-2.5 md:p-3 rounded-xl">
+          <Phone size={18} />
         </div>
         <div>
-          <p className="text-sm text-gray-400">Teléfono</p>
-          <p className="font-semibold">
+          <p className="text-xs md:text-sm text-gray-400">Teléfono</p>
+          <p className="font-semibold text-sm md:text-base">
             +54 11 3700-1152
           </p>
         </div>
       </div>
 
       {/* ⏰ Horario */}
-      <div className="flex items-center gap-4">
-        <div className="bg-white/10 p-3 rounded-xl">
-          <Clock size={20} />
+      <div className="flex gap-3 md:gap-4 items-start">
+        <div className="bg-white/10 p-2.5 md:p-3 rounded-xl">
+          <Clock size={18} />
         </div>
         <div>
-          <p className="text-sm text-gray-400">Horario</p>
-          <p className="font-semibold">
-            Lunes a Viernes de 9.30 a 12:00 y de 16:00 a 19:00
+          <p className="text-xs md:text-sm text-gray-400">Horario</p>
+          <p className="font-semibold text-sm md:text-base leading-snug">
+            Lunes a Viernes de 9:30 a 12:00 y de 16:00 a 19:00
           </p>
         </div>
       </div>
@@ -219,8 +219,8 @@ export default function TasacionPage() {
   </div>
 
   {/* 🔥 CTA ABAJO */}
-  <div className="mt-10 bg-white/10 p-4 rounded-xl space-y-4">
-    <p className="text-sm text-gray-300">
+  <div className="mt-6 md:mt-10 bg-white/10 p-4 rounded-xl space-y-3 md:space-y-4">
+    <p className="text-xs md:text-sm text-gray-300 text-center md:text-left">
       También podés escribirnos por WhatsApp y te respondemos al instante.
     </p>
 
@@ -229,16 +229,17 @@ export default function TasacionPage() {
       href="https://wa.me/541137001152"
       target="_blank"
       rel="noopener noreferrer"
-      className="flex items-center justify-center gap-2 bg-green-500 hover:bg-green-600 text-white font-medium py-3 rounded-xl transition"
+      className="flex items-center justify-center gap-2 bg-green-500 hover:bg-green-600 text-white font-medium py-2.5 md:py-3 rounded-xl transition text-sm md:text-base w-full md:w-auto"
     >
-      <FaWhatsapp size={20} /> Escribir por WhatsApp
+      <FaWhatsapp size={18} />
+      Escribir por WhatsApp
     </a>
   </div>
 
 </div>
 
       </div>
-      <Footer />
+
     </main>
   );
 }

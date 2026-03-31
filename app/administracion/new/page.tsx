@@ -33,6 +33,35 @@ export default function NewPropertyPage() {
   const [mainIndex, setMainIndex] = useState(0);
   const [loading, setLoading] = useState(false);
 
+const moveImage = (index: number, direction: "up" | "down") => {
+  const newPreviews = [...previews];
+  const newFiles = [...files];
+
+  const targetIndex = direction === "up" ? index - 1 : index + 1;
+
+  if (targetIndex < 0 || targetIndex >= previews.length) return;
+
+  // swap previews
+  [newPreviews[index], newPreviews[targetIndex]] = [
+    newPreviews[targetIndex],
+    newPreviews[index],
+  ];
+
+  // 🔥 swap files TAMBIÉN
+  [newFiles[index], newFiles[targetIndex]] = [
+    newFiles[targetIndex],
+    newFiles[index],
+  ];
+
+  setPreviews(newPreviews);
+  setFiles(newFiles);
+
+  // mantener main
+  if (mainIndex === index) setMainIndex(targetIndex);
+  else if (mainIndex === targetIndex) setMainIndex(index);
+};
+
+
   const handleChange = (e: any) => {
     const { name, value, type, checked } = e.target;
 
@@ -41,14 +70,39 @@ export default function NewPropertyPage() {
       [name]: type === "checkbox" ? checked : value,
     });
   };
-  // 📸 manejar selección de archivos
-  const handleFiles = (e: any) => {
-    const selected = Array.from(e.target.files);
 
-    setFiles(selected as File[]);
-    setPreviews(selected.map((file: any) => URL.createObjectURL(file)));
+
+const handleFiles = (e: any) => {
+  const selected = Array.from(e.target.files) as File[];
+
+  const filtered = selected.filter((newFile) => {
+    return !files.some(
+      (existingFile) =>
+        existingFile.name === newFile.name &&
+        existingFile.size === newFile.size &&
+        existingFile.lastModified === newFile.lastModified
+    );
+  });
+
+  // 🔥 acumular SOLO los nuevos
+  const newFiles = [...files, ...filtered];
+
+  const newPreviews = [
+    ...previews,
+    ...filtered.map((file) => URL.createObjectURL(file)),
+  ];
+
+  setFiles(newFiles);
+  setPreviews(newPreviews);
+
+  // 🔥 si es la primera carga
+  if (files.length === 0 && filtered.length > 0) {
     setMainIndex(0);
-  };
+  }
+  if (filtered.length !== selected.length) {
+  alert("Este archivo ya estaba cargado");
+}
+};
 
   const removeFile = (index: number) => {
     const newFiles = files.filter((_, i) => i !== index);
@@ -123,7 +177,7 @@ export default function NewPropertyPage() {
             public_id: uploadData.public_id,
             type: file.type.startsWith("video") ? "video" : "image",
             is_main: i === mainIndex,
-            order_index: i,
+            position: i,
           }),
         });
       }
@@ -350,72 +404,74 @@ export default function NewPropertyPage() {
           </label>
         </div>
 {/* 📸 MEDIA */}
-<div>
-  <label className="font-semibold mb-2 block text-black">
-    Imágenes / Videos
-  </label>
+        <div>
+          <label className="font-semibold mb-2 block text-black">
+            Imágenes / Videos
+          </label>
 
-  <input
-    type="file"
-    multiple
-    accept="image/*,video/*"
-    onChange={handleFiles}
-    className="border p-3 rounded-lg w-full text-black"
-  />
+          <input
+            type="file"
+            multiple
+            accept="image/*,video/*"
+            onChange={handleFiles}
+            className="border p-3 rounded-lg w-full text-black"
+          />
 
-  {/* PREVIEW */}
-  <div className="grid grid-cols-3 gap-3 mt-4">
-    {previews.map((src, i) => {
-      const isVideo = src.match(/\.(mp4|webm|ogg)$/i);
-
-      return (
-        <div
-          key={i}
-          className={`relative border rounded-lg p-1 ${
-            i === mainIndex ? "border-green-500" : ""
-          }`}
-        >
-          {isVideo ? (
-            <video
-              src={src}
-              className="w-full h-24 object-cover rounded"
-            />
-          ) : (
-            <img
-              src={src}
-              className="w-full h-24 object-cover rounded"
-            />
-          )}
-
-          {/* ⭐ MAIN */}
-          <button
-            type="button"
-            onClick={() => setMainIndex(i)}
-            className="absolute top-1 left-1 text-xs bg-black text-white px-2 py-1 rounded"
-          >
-            {i === mainIndex ? "Principal ⭐" : "Elegir"}
-          </button>
-
-          {/* ❌ DELETE */}
-          <button
-            type="button"
-            onClick={() => removeFile(i)}
-            className="absolute top-1 right-1 text-xs bg-red-500 text-white px-2 py-1 rounded"
-          >
-            X
-          </button>
-
-          {/* 🎥 BADGE VIDEO */}
-          {isVideo && (
-            <span className="absolute bottom-1 right-1 bg-black/80 text-white text-[10px] px-2 py-[2px] rounded">
-              Video
-            </span>
-          )}
-        </div>
-      );
-    })}
-  </div>
+          {/* PREVIEW */}
+          <div className="grid grid-cols-3 gap-3 mt-4">
+            {previews.map((src, i) => (
+              <div
+                key={i}
+                className={`relative border rounded-lg p-1 ${
+                  i === mainIndex ? "border-green-500" : ""
+                }`}
+              >
+                <img
+                  src={src}
+                  className="w-full h-24 object-cover rounded"
+                />
+                {/* 🔼🔽 ORDEN */}
+<div className="absolute bottom-1 left-1 flex gap-1">
+  <button
+    type="button"
+    onClick={() => moveImage(i, "up")}
+    className="bg-black/70 text-white text-xs px-2 py-1 rounded"
+  >
+    ↑
+  </button>
+              <p className="bg-white text-black text-xs px-2 py-1 rounded font-bold">
+  {i + 1}
+</p>
+  <button
+    type="button"
+    onClick={() => moveImage(i, "down")}
+    className="bg-black/70 text-white text-xs px-2 py-1 rounded"
+  >
+    ↓
+  </button>
 </div>
+
+                {/* ⭐ MAIN */}
+                <button
+                  type="button"
+                  onClick={() => setMainIndex(i)}
+                  className="absolute top-1 left-1 text-xs bg-black text-white px-2 py-1 rounded"
+                >
+                  {i === mainIndex ? "Principal ⭐" : "Elegir"}
+                </button>
+
+                {/* ❌ DELETE */}
+                <button
+                  type="button"
+                  onClick={() => removeFile(i)}
+                  className="absolute top-1 right-1 text-xs bg-red-500 text-white px-2 py-1 rounded"
+                >
+                  X
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
         {/* 🚀 BOTÓN */}
         <button
           type="submit"

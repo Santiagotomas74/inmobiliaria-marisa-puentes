@@ -100,14 +100,6 @@ export default function Footer() {
 
   <p>© 2026 Marisa Puentes Propiedades. Todos los derechos reservados.</p>
 
-  <div className="flex gap-6">
-    <a href="#" className="hover:text-white transition-colors">
-      Términos y Condiciones
-    </a>
-    <a href="#" className="hover:text-white transition-colors">
-      Política de Privacidad
-    </a>
-  </div>
 </div>
 
 {/* 🔻 SEPARADOR & CRÉDITOS */}
@@ -197,3 +189,15 @@ export default function Footer() {
     </footer>
   );
 }
+
+/*
+
+  <div className="flex gap-6">
+    <a href="#" className="hover:text-white transition-colors">
+      Términos y Condiciones
+    </a>
+    <a href="#" className="hover:text-white transition-colors">
+      Política de Privacidad
+    </a>
+  </div>
+*/

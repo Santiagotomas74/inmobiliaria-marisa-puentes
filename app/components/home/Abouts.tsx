@@ -1,4 +1,5 @@
 "use client";
+import { Clock, Check  } from 'lucide-react';
 
 export default function AboutUs() {
   return (
@@ -38,36 +39,37 @@ export default function AboutUs() {
           </p>
 
           {/* 🧩 FEATURES */}
-          <div className="grid grid-cols-2 gap-6 mt-8">
+<div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6 mt-6 md:mt-8">
 
-            
+  <div className="flex gap-3 items-start">
+    <div className="bg-white p-2 md:p-3 rounded-xl shadow text-sm md:text-base">
+        <Clock className='text-red-600' />
+    </div>
+    <div>
+      <h4 className="font-semibold text-black text-sm md:text-base">
+        Soporte 24/7
+      </h4>
+      <p className="text-xs md:text-sm text-gray-500">
+        Siempre disponibles para ayudarte.
+      </p>
+    </div>
+  </div>
 
+  <div className="flex gap-3 items-start">
+    <div className="bg-white p-2 md:p-3 rounded-xl shadow text-sm md:text-base">
+     <Check className='text-green-600' />
+    </div>
+    <div>
+      <h4 className="font-semibold text-black text-sm md:text-base">
+        Transparencia Total
+      </h4>
+      <p className="text-xs md:text-sm text-gray-500">
+        Sin sorpresas, todo claro.
+      </p>
+    </div>
+  </div>
 
-            <div className="flex gap-3">
-              <div className="bg-white p-3 rounded-xl shadow">
-                ⏰
-              </div>
-              <div>
-                <h4 className="font-semibold text-black">Soporte 24/7 </h4>
-                <p className="text-sm text-gray-500">
-                  Siempre disponibles para ayudarte.
-                </p>
-              </div>
-            </div>
-
-            <div className="flex gap-3">
-              <div className="bg-white p-3 rounded-xl shadow">
-                ✅
-              </div>
-              <div>
-                <h4 className="font-semibold text-black">Transparencia Total</h4>
-                <p className="text-sm text-gray-500">
-                  Sin sorpresas, todo claro.
-                </p>
-              </div>
-            </div>
-
-          </div>
+</div>
 
           {/* 🔘 CTA */}
           <button className="mt-8 bg-black text-white px-6 py-3 rounded-full hover:bg-gray-800 transition">

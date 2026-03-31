@@ -217,6 +217,17 @@ export default function Navbar({ items }: NavbarProps) {
               </Link>
             </li>
           ))}
+          {/* DESKTOP ACTIONS */}
+    <Link
+      href="/tasaciones"
+      onClick={() => setIsMenuOpen(false)}
+      className=" lg:flex items-center gap-2 px-4 py-2 rounded-xl
+                 text-gray-700 transition-all duration-300 bg-green-400
+                 hover:text-black hover:bg-gray-100 hover:-translate-y-[2px]"
+    >
+      <span className="font-medium">Tasaciones</span>
+    </Link>
+          
         </ul>
 
         <div className="border-t p-6 flex flex-col gap-3">

@@ -58,6 +58,51 @@ export default function EditProperty() {
     fetchProperty();
   }, [id]);
 
+
+
+ const moveMedia = (index: number, direction: "up" | "down") => {
+  setMedia((prev: any[]) => {
+    const newMedia = [...prev];
+
+    if (direction === "up" && index > 0) {
+      [newMedia[index - 1], newMedia[index]] = [newMedia[index], newMedia[index - 1]];
+    }
+
+    if (direction === "down" && index < newMedia.length - 1) {
+      [newMedia[index + 1], newMedia[index]] = [newMedia[index], newMedia[index + 1]];
+    }
+
+    return newMedia;
+  });
+};
+
+const handleSaveOrder = async () => {
+  console.log("MEDIA ACTUAL:", media);
+
+  const orderedMedia = media.map((m, index) => ({
+    id: m.id,
+    position: index,
+  }));
+
+  console.log("ENVIANDO:", orderedMedia);
+
+  try {
+    await fetch("/api/property-media/order", {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(orderedMedia),
+    });
+
+    alert("Orden actualizado ✅");
+
+  } catch (error) {
+    console.error(error);
+    alert("Error al guardar orden");
+  }
+};
+
   // ✏️ CHANGE
   const handleChange = (e: any) => {
     const { name, value, type, checked } = e.target;
@@ -403,9 +448,31 @@ const handleSetMain = async (mediaId: number) => {
 />
 )}
 
+
         {/* OVERLAY */}
         <div className="absolute inset-0 bg-black/50 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition flex flex-col justify-between p-3">
+{/* 🔼🔽 ORDEN */}
+<div className="absolute bottom-2 left-2 flex items-center gap-2">
 
+  <button
+    onClick={() => moveMedia(index, "up")}
+    className="bg-black/70 text-white text-xs px-2 py-1 rounded"
+  >
+    ↑
+  </button>
+
+  <span className="bg-white text-black text-xs px-2 py-1 rounded font-bold">
+    {index + 1}
+  </span>
+
+  <button
+    onClick={() => moveMedia(index, "down")}
+    className="bg-black/70 text-white text-xs px-2 py-1 rounded"
+  >
+    ↓
+  </button>
+
+</div>
           {/* DELETE */}
           <button
             onClick={() => handleDeleteMedia(m.id)}
@@ -417,7 +484,7 @@ const handleSetMain = async (mediaId: number) => {
           {/* SET MAIN */}
         <button
   onClick={() => handleSetMain(m.id)}
-  className="text-xs bg-white px-2 py-1 rounded text-black"
+  className="text-xs bg-white px-2 py-1 mb-6 rounded text-black"
 >
   {settingMainId === m.id
     ? "Actualizando..."
@@ -436,8 +503,14 @@ const handleSetMain = async (mediaId: number) => {
 
       </div>
     ))}
+    
   </div>
-
+<button
+  onClick={handleSaveOrder}
+  className="mt-6 bg-blue-600 text-white px-6 py-2 rounded-xl hover:bg-blue-700 transition"
+>
+  Guardar posiciones
+</button>
   {/* UPLOAD */}
   <div className="mt-8">
 

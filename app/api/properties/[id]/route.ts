@@ -9,28 +9,29 @@ export async function GET(
   try {
     const { id } = await params; // ✅ FIX
 
-    const { rows } = await query(
-      `
-      SELECT 
-        p.*,
-        (
-          SELECT json_agg(
-            json_build_object(
-              'id', pm.id,
-              'url', pm.url,
-              'type', pm.type,
-              'is_main', pm.is_main,
-              'order_index', pm.order_index
-            )
-          )
-          FROM property_media pm
-          WHERE pm.property_id = p.id
-        ) AS media
-      FROM properties p
-      WHERE p.id = $1
-      `,
-      [id]
-    );
+   const { rows } = await query(
+  `
+  SELECT 
+    p.*,
+    (
+      SELECT json_agg(
+        json_build_object(
+          'id', pm.id,
+          'url', pm.url,
+          'type', pm.type,
+          'is_main', pm.is_main,
+          'position', pm.position
+        )
+        ORDER BY pm.position ASC
+      )
+      FROM property_media pm
+      WHERE pm.property_id = p.id
+    ) AS media
+  FROM properties p
+  WHERE p.id = $1
+  `,
+  [id]
+);
 
     return NextResponse.json(rows[0]);
 
