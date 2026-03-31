@@ -65,10 +65,14 @@ export default function FeaturedProperties() {
   {prop.main_image?.match(/\.(mp4|webm|ogg)$/i) ? (
     <div className="relative">
       <video
-        src={prop.main_image}
-        
-        className="w-full h-60 object-cover"
-      />
+  src={prop.main_image}
+  muted
+  autoPlay
+  loop
+  playsInline
+  poster="/video-preview.jpg"
+  className="w-full h-60 object-cover"
+/>
 
       {/* 🎥 Badge */}
       <span className="absolute bottom-2 right-2 bg-black/80 text-white text-xs px-2 py-1 rounded">

@@ -140,6 +140,11 @@ export default function AdminPage() {
     <div className="relative">
       <video
         src={prop.main_image}
+        muted
+         autoPlay
+        loop
+  playsInline
+  poster="/video-preview.jpg"
         className="w-full h-60 object-cover"
       />
 

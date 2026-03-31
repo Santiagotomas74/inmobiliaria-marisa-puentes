@@ -182,7 +182,12 @@ return (
     <div className="relative">
       <video
         src={prop.main_image}
-        className="w-full h-50 object-cover"
+         muted
+         autoPlay
+        loop
+  playsInline
+  poster="/video-preview.jpg"
+  className="w-full h-50 object-cover"
       />
 
       {/* 🎥 Badge */}
