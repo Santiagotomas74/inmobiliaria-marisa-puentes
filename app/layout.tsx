@@ -16,9 +16,7 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Marisa Puentes Propiedades",
   description: "Inmobiliaria especializada en venta y alquiler de propiedades",
-   icons: {
-    icon: "/logo.jpeg",
-  },
+   
 };
 const navItems: NavbarProps["items"] = [
   { label: "Inicio", href: "/" },
