@@ -14,8 +14,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Marisa Puentes Propiedades",
-  description: "Inmobiliaria especializada en venta y alquiler de propiedades",
+ title: "Inmobiliaria en San Miguel | Marisa Puentes Propiedades",
+description: "Compra, venta y alquiler de propiedades en San Miguel. Casas, departamentos y terrenos con asesoramiento profesional.",
    
 };
 const navItems: NavbarProps["items"] = [
