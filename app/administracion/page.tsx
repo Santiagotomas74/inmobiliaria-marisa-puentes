@@ -82,7 +82,7 @@ export default function Login() {
   <div className="min-h-screen w-full flex flex-col md:flex-row bg-white overflow-hidden tracking-tight">
     
     {/* 🟦 LADO IZQUIERDO */}
-    <div className="relative w-full md:w-1/2 h-[40vh] md:h-screen flex flex-col justify-center p-8 md:p-20 text-white overflow-hidden">
+    <div className="relative w-full md:w-1/2 h-[50vh] md:h-screen flex flex-col justify-center p-8 md:p-20 text-white overflow-hidden">
       
       {/* 🌆 FONDO */}
       <div 
