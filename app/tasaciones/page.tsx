@@ -3,10 +3,9 @@
 import { useState } from "react";
 import { MapPin, Phone, Clock, Send } from "lucide-react";
 import Footer from "../components/home/Footer";
- import { FaWhatsapp } from "react-icons/fa"; 
+import { FaWhatsapp } from "react-icons/fa";
 
 export default function TasacionPage() {
-
   const [form, setForm] = useState({
     name: "",
     email: "",
@@ -58,7 +57,6 @@ export default function TasacionPage() {
           zone: "",
         });
       }
-
     } catch (error) {
       setMessage("Error de conexión");
     }
@@ -67,22 +65,17 @@ export default function TasacionPage() {
   };
 
   return (
-    <main className="min-h-screen bg-gray-50 py-16 px-6">
+    <main className="min-h-screen bg-gradient-to-br from-blue-600 to-blue-800 py-16 px-6">
       <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-10 mb-10">
-
         {/* 🧾 FORM */}
         <div className="bg-white p-8 rounded-3xl shadow-xl">
-
-          <h1 className="text-3xl font-bold mb-2 text-gray-700">
-            Tasaciones
-          </h1>
+          <h1 className="text-3xl font-bold mb-2 text-gray-700">Tasaciones</h1>
 
           <p className="text-gray-500 mb-6">
             Completá con tus datos y nos contactaremos a la brevedad
           </p>
 
           <form className="space-y-4" onSubmit={handleSubmit}>
-
             <input
               name="name"
               value={form.name}
@@ -137,12 +130,12 @@ export default function TasacionPage() {
               placeholder="Zona"
               className="w-full border p-3 rounded-lg text-gray-700"
             />
-<p className="text-xs text-gray-400 mt-2">
-  Al enviar el formulario aceptás nuestra{" "}
-  <a href="/privacidad" className="underline hover:text-white">
-    Política de Privacidad
-  </a>
-</p>
+            <p className="text-xs text-gray-400 mt-2">
+              Al enviar el formulario aceptás nuestra{" "}
+              <a href="/privacidad" className="underline hover:text-white">
+                Política de Privacidad
+              </a>
+            </p>
             <button
               type="submit"
               disabled={loading}
@@ -158,88 +151,83 @@ export default function TasacionPage() {
                 {message}
               </p>
             )}
-
           </form>
         </div>
 
         {/* 📍 CARD INFORMACIÓN */}
-<div className="bg-gradient-to-br from-gray-900 to-gray-800 text-white p-5 md:p-8 rounded-3xl shadow-xl flex flex-col justify-between">
+        <div className="bg-gradient-to-br from-gray-900 to-gray-800 text-white p-5 md:p-8 rounded-3xl shadow-xl flex flex-col justify-between">
+          <div>
+            <h2 className="text-xl md:text-2xl font-bold mb-3 md:mb-4">
+              ¿Dónde estamos ubicados?
+            </h2>
 
-  <div>
-    <h2 className="text-xl md:text-2xl font-bold mb-3 md:mb-4">
-      ¿Dónde estamos ubicados?
-    </h2>
+            <p className="text-gray-300 mb-5 md:mb-6 text-sm md:text-base">
+              Podés visitarnos en nuestra oficina o comunicarte por cualquiera
+              de nuestros canales.
+            </p>
 
-    <p className="text-gray-300 mb-5 md:mb-6 text-sm md:text-base">
-      Podés visitarnos en nuestra oficina o comunicarte por cualquiera de nuestros canales.
-    </p>
+            <div className="space-y-4 md:space-y-6">
+              {/* 📍 Dirección */}
+              <div className="flex gap-3 md:gap-4 items-start">
+                <div className="bg-white/10 p-2.5 md:p-3 rounded-xl">
+                  <MapPin size={18} />
+                </div>
+                <div>
+                  <p className="text-xs md:text-sm text-gray-400">Dirección</p>
+                  <p className="font-semibold text-sm md:text-base leading-snug">
+                    Av. Papa Francisco 4215, Localidad Santa María, San Miguel.
+                  </p>
+                </div>
+              </div>
 
-    <div className="space-y-4 md:space-y-6">
+              {/* 📞 Teléfono */}
+              <div className="flex gap-3 md:gap-4 items-start">
+                <div className="bg-white/10 p-2.5 md:p-3 rounded-xl">
+                  <Phone size={18} />
+                </div>
+                <div>
+                  <p className="text-xs md:text-sm text-gray-400">Teléfono</p>
+                  <p className="font-semibold text-sm md:text-base">
+                    +54 11 3700-1152
+                  </p>
+                </div>
+              </div>
 
-      {/* 📍 Dirección */}
-      <div className="flex gap-3 md:gap-4 items-start">
-        <div className="bg-white/10 p-2.5 md:p-3 rounded-xl">
-          <MapPin size={18} />
-        </div>
-        <div>
-          <p className="text-xs md:text-sm text-gray-400">Dirección</p>
-          <p className="font-semibold text-sm md:text-base leading-snug">
-            Av. Papa Francisco 4215, Localidad Santa María, San Miguel.
-          </p>
+              {/* ⏰ Horario */}
+              <div className="flex gap-3 md:gap-4 items-start">
+                <div className="bg-white/10 p-2.5 md:p-3 rounded-xl">
+                  <Clock size={18} />
+                </div>
+                <div>
+                  <p className="text-xs md:text-sm text-gray-400">Horario</p>
+                  <p className="font-semibold text-sm md:text-base leading-snug">
+                    Lunes a Viernes de 9:30 a 12:00 y de 16:00 a 19:00
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* 🔥 CTA ABAJO */}
+          <div className="mt-6 md:mt-10 bg-white/10 p-4 rounded-xl space-y-3 md:space-y-4">
+            <p className="text-xs md:text-sm text-gray-300 text-center md:text-left">
+              También podés escribirnos por WhatsApp y te respondemos al
+              instante.
+            </p>
+
+            {/* ✅ BOTÓN WHATSAPP */}
+            <a
+              href="https://wa.me/541137001152"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center justify-center gap-2 bg-green-500 hover:bg-green-600 text-white font-medium py-2.5 md:py-3 rounded-xl transition text-sm md:text-base w-full md:w-auto"
+            >
+              <FaWhatsapp size={18} />
+              Escribir por WhatsApp
+            </a>
+          </div>
         </div>
       </div>
-
-      {/* 📞 Teléfono */}
-      <div className="flex gap-3 md:gap-4 items-start">
-        <div className="bg-white/10 p-2.5 md:p-3 rounded-xl">
-          <Phone size={18} />
-        </div>
-        <div>
-          <p className="text-xs md:text-sm text-gray-400">Teléfono</p>
-          <p className="font-semibold text-sm md:text-base">
-            +54 11 3700-1152
-          </p>
-        </div>
-      </div>
-
-      {/* ⏰ Horario */}
-      <div className="flex gap-3 md:gap-4 items-start">
-        <div className="bg-white/10 p-2.5 md:p-3 rounded-xl">
-          <Clock size={18} />
-        </div>
-        <div>
-          <p className="text-xs md:text-sm text-gray-400">Horario</p>
-          <p className="font-semibold text-sm md:text-base leading-snug">
-            Lunes a Viernes de 9:30 a 12:00 y de 16:00 a 19:00
-          </p>
-        </div>
-      </div>
-
-    </div>
-  </div>
-
-  {/* 🔥 CTA ABAJO */}
-  <div className="mt-6 md:mt-10 bg-white/10 p-4 rounded-xl space-y-3 md:space-y-4">
-    <p className="text-xs md:text-sm text-gray-300 text-center md:text-left">
-      También podés escribirnos por WhatsApp y te respondemos al instante.
-    </p>
-
-    {/* ✅ BOTÓN WHATSAPP */}
-    <a
-      href="https://wa.me/541137001152"
-      target="_blank"
-      rel="noopener noreferrer"
-      className="flex items-center justify-center gap-2 bg-green-500 hover:bg-green-600 text-white font-medium py-2.5 md:py-3 rounded-xl transition text-sm md:text-base w-full md:w-auto"
-    >
-      <FaWhatsapp size={18} />
-      Escribir por WhatsApp
-    </a>
-  </div>
-
-</div>
-
-      </div>
-
     </main>
   );
 }

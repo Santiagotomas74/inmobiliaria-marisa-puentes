@@ -6,13 +6,11 @@ export default function PropertyFilters({ filters, setFilters }: any) {
 
   return (
     <div className="bg-white p-6 rounded-3xl shadow-xl border border-slate-100 sticky top-24 h-fit">
-
       <h3 className="text-lg font-semibold mb-6 text-gray-800">
         Filtrar propiedades
       </h3>
 
       <div className="space-y-5">
-
         {/* 🏷 Operación */}
         <div>
           <label className="text-xs font-bold text-slate-500 uppercase">
@@ -39,9 +37,7 @@ export default function PropertyFilters({ filters, setFilters }: any) {
           <input
             placeholder="Ej: San Miguel"
             value={filters.city}
-            onChange={(e) =>
-              setFilters({ ...filters, city: e.target.value })
-            }
+            onChange={(e) => setFilters({ ...filters, city: e.target.value })}
             className={inputStyles}
           />
         </div>
@@ -53,9 +49,7 @@ export default function PropertyFilters({ filters, setFilters }: any) {
           </label>
           <select
             value={filters.type}
-            onChange={(e) =>
-              setFilters({ ...filters, type: e.target.value })
-            }
+            onChange={(e) => setFilters({ ...filters, type: e.target.value })}
             className={inputStyles}
           >
             <option value="">Todos</option>
@@ -76,9 +70,7 @@ export default function PropertyFilters({ filters, setFilters }: any) {
           </label>
           <select
             value={filters.rooms}
-            onChange={(e) =>
-              setFilters({ ...filters, rooms: e.target.value })
-            }
+            onChange={(e) => setFilters({ ...filters, rooms: e.target.value })}
             className={inputStyles}
           >
             <option value="">Cualquiera</option>
@@ -156,7 +148,6 @@ export default function PropertyFilters({ filters, setFilters }: any) {
         >
           Limpiar filtros
         </button>
-
       </div>
     </div>
   );
