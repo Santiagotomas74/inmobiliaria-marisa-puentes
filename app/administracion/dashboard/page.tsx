@@ -33,6 +33,7 @@ type Tasacion = {
   operation?: string;
   property_type?: string;
   zone?: string;
+  notes?: string;
   created_at?: string;
 };
 type Message = {
@@ -84,6 +85,27 @@ export default function AdminPage() {
     const data = await res.json();
     setProperties(data);
     console.log(data);
+  };
+  const formatWhatsAppNumber = (phone: string) => {
+    // quitar todo lo que no sea número
+    let clean = phone.replace(/\D/g, "");
+
+    // si empieza con 0 → quitarlo
+    if (clean.startsWith("0")) {
+      clean = clean.slice(1);
+    }
+
+    // si no tiene código país → agregar 54
+    if (!clean.startsWith("54")) {
+      clean = `54${clean}`;
+    }
+
+    // agregar 9 para celulares Argentina
+    if (!clean.startsWith("549")) {
+      clean = clean.replace(/^54/, "549");
+    }
+
+    return clean;
   };
 
   const fetchTasaciones = async () => {
@@ -302,48 +324,100 @@ export default function AdminPage() {
           {tasaciones.length === 0 ? (
             <p className="text-gray-500">No hay solicitudes aún</p>
           ) : (
-            <div className="grid md:grid-cols-2 gap-6">
-              {tasaciones.map((t) => (
-                <div
-                  key={t.id}
-                  className="bg-white p-5 rounded-2xl shadow hover:shadow-md transition"
-                >
-                  <div className="flex justify-between items-center mb-2">
-                    <p className="font-semibold  text-black">{t.name}</p>
-                    <span className="text-xs bg-green-700 px-2 py-1 rounded text-white">
-                      Nuevo
-                    </span>
+            <div className="grid md:grid-cols-2 gap-6 mb-10">
+              {tasaciones.map((t) => {
+                // 🕒 NUEVO / ANTIGUO
+                const isNew =
+                  t.created_at &&
+                  new Date().getTime() - new Date(t.created_at).getTime() <
+                    1000 * 60 * 60 * 24;
+
+                return (
+                  <div
+                    key={t.id}
+                    className="bg-white p-5 rounded-2xl shadow hover:shadow-md transition"
+                  >
+                    <div className="flex justify-between items-center mb-2">
+                      <p className="font-semibold text-black">{t.name}</p>
+
+                      {isNew ? (
+                        <span className="text-xs bg-green-700 px-2 py-1 rounded text-white">
+                          Nuevo
+                        </span>
+                      ) : (
+                        <span className="text-xs bg-gray-300 px-2 py-1 rounded text-gray-700">
+                          Antiguo
+                        </span>
+                      )}
+                    </div>
+
+                    {/* 📧 EMAIL */}
+                    <div className="flex items-center gap-2 text-sm text-gray-500">
+                      <p className="truncate">Email: {t.email}</p>
+
+                      <button
+                        onClick={() => copyEmail(t.email)}
+                        className="p-1 hover:bg-gray-100 rounded transition"
+                        title="Copiar email"
+                      >
+                        <Copy size={14} />
+                      </button>
+                    </div>
+
+                    {/* 📞 TELÉFONO */}
+                    {t.phone && (
+                      <p className="text-sm text-gray-500 mt-1">
+                        Teléfono: {t.phone}
+                      </p>
+                    )}
+
+                    {/* 📄 INFO */}
+                    <div className="mt-3 text-sm text-gray-600 space-y-1">
+                      <p>Operacion:{t.operation}</p>
+                      <p>Tipo: {t.property_type}</p>
+                      <p>{t.zone}</p>
+                      <p>{t.notes}</p>
+                    </div>
+
+                    {/* 📅 FECHA + ACCIONES */}
+                    <div className="mt-4 flex flex-col md:flex-row md:justify-between md:items-center gap-3 text-sm">
+                      <span className="text-gray-400">
+                        {t.created_at
+                          ? new Date(t.created_at).toLocaleDateString()
+                          : ""}
+                      </span>
+
+                      <div className="flex gap-2 flex-wrap">
+                        {/* 💬 WHATSAPP */}
+                        {t.phone && (
+                          <a
+                            href={`https://wa.me/${formatWhatsAppNumber(t.phone)}?text=Hola ${t.name}, te contacto por tu solicitud de tasación.`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white px-3 py-2 rounded-xl transition"
+                          >
+                            <FaWhatsapp size={16} />
+                            WhatsApp
+                          </a>
+                        )}
+
+                        {/* 📧 EMAIL */}
+                        <a
+                          href={`mailto:${t.email}?subject=Respuesta sobre tu tasación&body=Hola ${t.name},`}
+                          className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-xl transition"
+                        >
+                          <Mail size={16} />
+                          Email
+                        </a>
+                      </div>
+                    </div>
                   </div>
-
-                  <p className="text-sm text-gray-500">{t.email}</p>
-
-                  {t.phone && (
-                    <p className="text-sm text-gray-500">{t.phone}</p>
-                  )}
-
-                  <div className="mt-3 text-sm text-gray-600">
-                    <p>
-                      {t.operation} • {t.property_type}
-                    </p>
-                    <p>{t.zone}</p>
-                  </div>
-
-                  <div className="mt-4 flex justify-between items-center text-sm">
-                    <span className="text-gray-400">
-                      {t.created_at
-                        ? new Date(t.created_at).toLocaleDateString()
-                        : ""}
-                    </span>
-
-                    <button className="text-green-600 hover:underline">
-                      Contactar
-                    </button>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </section>
+
         {/* 📩 mensajes */}
         <section>
           <h2 className="text-2xl font-semibold mb-6 text-black">Mensajes</h2>
@@ -352,74 +426,92 @@ export default function AdminPage() {
             <p className="text-gray-500">No hay solicitudes aún</p>
           ) : (
             <div className="grid md:grid-cols-2 gap-6">
-              {mensajes.map((m) => (
-                <div
-                  key={m.id}
-                  className="bg-white p-5 rounded-2xl shadow hover:shadow-md transition"
-                >
-                  <div className="flex justify-between items-center mb-2">
-                    <p className="font-semibold  text-black">{m.name}</p>
-                    <span className="text-xs bg-green-700 px-2 py-1 rounded text-white">
-                      Nuevo
-                    </span>
-                  </div>
+              {mensajes.map((m) => {
+                // 🕒 NUEVO / ANTIGUO
+                const isNew =
+                  m.created_at &&
+                  new Date().getTime() - new Date(m.created_at).getTime() <
+                    1000 * 60 * 60 * 24;
 
-                  {/* 📧 EMAIL */}
-                  <div className="flex items-center gap-2 text-sm text-gray-500">
-                    <p className="truncate">Email: {m.email}</p>
+                return (
+                  <div
+                    key={m.id}
+                    className="bg-white p-5 rounded-2xl shadow hover:shadow-md transition"
+                  >
+                    <div className="flex justify-between items-center mb-2">
+                      <p className="font-semibold text-black">{m.name}</p>
 
-                    <button
-                      onClick={() => copyEmail(m.email)}
-                      className="p-1 hover:bg-gray-100 rounded transition"
-                      title="Copiar email"
-                    >
-                      <Copy size={14} />
-                    </button>
-                  </div>
-
-                  {/* 📞 TELÉFONO */}
-                  {m.phone && (
-                    <p className="text-sm text-gray-500 mt-1">
-                      Teléfono: {m.phone}
-                    </p>
-                  )}
-
-                  <div className="mt-3 text-sm text-gray-600">
-                    <p> Mensaje: {m.message}</p>
-                  </div>
-                  <div className="mt-4 flex flex-col md:flex-row md:justify-between md:items-center gap-3 text-sm">
-                    <span className="text-gray-400">
-                      {m.created_at
-                        ? new Date(m.created_at).toLocaleDateString()
-                        : ""}
-                    </span>
-
-                    <div className="flex gap-2 flex-wrap">
-                      {/* 💬 WHATSAPP */}
-                      {m.phone && (
-                        <a
-                          href={`https://wa.me/${m.phone.replace(/\D/g, "")}?text=Hola ${m.name}, te contacto por tu consulta.`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white px-3 py-2 rounded-xl transition"
-                        >
-                          <FaWhatsapp size={16} />
-                          WhatsApp
-                        </a>
+                      {isNew ? (
+                        <span className="text-xs bg-green-700 px-2 py-1 rounded text-white">
+                          Nuevo
+                        </span>
+                      ) : (
+                        <span className="text-xs bg-gray-300 px-2 py-1 rounded text-gray-700">
+                          Antiguo
+                        </span>
                       )}
+                    </div>
 
-                      {/* 📧 EMAIL */}
-                      <a
-                        href={`mailto:${m.email}?subject=Consulta sobre tu mensaje&body=Hola ${m.name},`}
-                        className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-xl transition"
+                    {/* 📧 EMAIL */}
+                    <div className="flex items-center gap-2 text-sm text-gray-500">
+                      <p className="truncate">Email: {m.email}</p>
+
+                      <button
+                        onClick={() => copyEmail(m.email)}
+                        className="p-1 hover:bg-gray-100 rounded transition"
+                        title="Copiar email"
                       >
-                        <Mail size={16} />
-                        Email
-                      </a>
+                        <Copy size={14} />
+                      </button>
+                    </div>
+
+                    {/* 📞 TELÉFONO */}
+                    {m.phone && (
+                      <p className="text-sm text-gray-500 mt-1">
+                        Teléfono: {m.phone}
+                      </p>
+                    )}
+
+                    {/* 💬 MENSAJE */}
+                    <div className="mt-3 text-sm text-gray-600">
+                      <p>Mensaje: {m.message}</p>
+                    </div>
+
+                    {/* 📅 FECHA + ACCIONES */}
+                    <div className="mt-4 flex flex-col md:flex-row md:justify-between md:items-center gap-3 text-sm">
+                      <span className="text-gray-400">
+                        {m.created_at
+                          ? new Date(m.created_at).toLocaleDateString()
+                          : ""}
+                      </span>
+
+                      <div className="flex gap-2 flex-wrap">
+                        {/* 💬 WHATSAPP */}
+                        {m.phone && (
+                          <a
+                            href={`https://wa.me/${formatWhatsAppNumber(m.phone)}?text=Hola ${m.name}, te contacto por tu consulta.`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white px-3 py-2 rounded-xl transition"
+                          >
+                            <FaWhatsapp size={16} />
+                            WhatsApp
+                          </a>
+                        )}
+
+                        {/* 📧 EMAIL */}
+                        <a
+                          href={`mailto:${m.email}?subject=Consulta sobre tu mensaje&body=Hola ${m.name},`}
+                          className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-xl transition"
+                        >
+                          <Mail size={16} />
+                          Email
+                        </a>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </section>

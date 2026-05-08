@@ -10,9 +10,11 @@ export default function TasacionPage() {
     name: "",
     email: "",
     phone: "",
+    confirmPhone: "",
     operation: "",
     property_type: "",
     zone: "",
+    notes: "",
   });
 
   const [loading, setLoading] = useState(false);
@@ -25,11 +27,31 @@ export default function TasacionPage() {
     });
   };
 
+  const phoneRegex = /^\+?[0-9\s()-]{8,20}$/;
+
+  const isPhoneValid = phoneRegex.test(form.phone);
+
+  const phonesMatch =
+    form.phone.replace(/\D/g, "") === form.confirmPhone.replace(/\D/g, "");
+
   const handleSubmit = async (e: any) => {
     e.preventDefault();
 
-    setLoading(true);
     setMessage("");
+
+    // 📞 validar teléfono
+    if (!isPhoneValid) {
+      setMessage("Ingresá un teléfono válido");
+      return;
+    }
+
+    // 📞 confirmar teléfono
+    if (!phonesMatch) {
+      setMessage("Los teléfonos no coinciden");
+      return;
+    }
+
+    setLoading(true);
 
     try {
       const res = await fetch(`/api/valuations`, {
@@ -52,9 +74,11 @@ export default function TasacionPage() {
           name: "",
           email: "",
           phone: "",
+          confirmPhone: "",
           operation: "",
           property_type: "",
           zone: "",
+          notes: "",
         });
       }
     } catch (error) {
@@ -95,13 +119,42 @@ export default function TasacionPage() {
                 className="w-full border p-3 rounded-lg text-gray-700"
               />
 
+              {/* 📞 TELÉFONO */}
               <input
                 name="phone"
                 value={form.phone}
                 onChange={handleChange}
                 placeholder="Teléfono"
-                className="w-full border p-3 rounded-lg text-gray-700"
+                className={`w-full border p-3 rounded-lg text-gray-700 ${
+                  form.phone && !isPhoneValid
+                    ? "border-red-500"
+                    : "border-gray-300"
+                }`}
               />
+
+              {/* ✅ CONFIRMAR TELÉFONO */}
+              <input
+                name="confirmPhone"
+                value={form.confirmPhone}
+                onChange={handleChange}
+                placeholder="Confirmar teléfono"
+                className={`w-full border p-3 rounded-lg text-gray-700 ${
+                  form.confirmPhone && !phonesMatch
+                    ? "border-red-500"
+                    : "border-gray-300"
+                }`}
+              />
+
+              {/* ⚠ ERRORES */}
+              {form.phone && !isPhoneValid && (
+                <p className="text-red-500 text-xs">Ingresá un número válido</p>
+              )}
+
+              {form.confirmPhone && !phonesMatch && (
+                <p className="text-red-500 text-xs">
+                  Los teléfonos no coinciden
+                </p>
+              )}
 
               <select
                 name="operation"
@@ -132,6 +185,15 @@ export default function TasacionPage() {
                 onChange={handleChange}
                 placeholder="Zona"
                 className="w-full border p-3 rounded-lg text-gray-700"
+              />
+              {/* 📝 NOTA */}
+              <textarea
+                name="notes"
+                value={form.notes}
+                onChange={handleChange}
+                placeholder="Contanos detalles de la propiedad..."
+                rows={4}
+                className="w-full border p-3 rounded-lg text-gray-700 resize-none"
               />
               <p className="text-xs text-gray-400 mt-2">
                 Al enviar el formulario aceptás nuestra{" "}
