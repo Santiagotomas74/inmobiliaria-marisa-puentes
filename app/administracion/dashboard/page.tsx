@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { BedDouble, Bath, RulerDimensionLine, DoorClosed } from "lucide-react";
 import { Copy, Mail, MessageCircle } from "lucide-react";
 import { FaWhatsapp } from "react-icons/fa";
+import { Share2 } from "lucide-react";
 
 type Property = {
   id: number;
@@ -47,7 +48,29 @@ export default function AdminPage() {
   const [properties, setProperties] = useState<Property[]>([]);
   const [tasaciones, setTasaciones] = useState<Tasacion[]>([]);
   const [mensajes, setMensajes] = useState<Message[]>([]);
+  const handleShare = async (prop: any) => {
+    const shareUrl = `${window.location.origin}/propiedades/${prop.id}`;
 
+    try {
+      // 📱 compartir nativo
+      if (navigator.share) {
+        await navigator.share({
+          title: prop.title,
+          text: `Mirá esta propiedad: ${prop.title}`,
+          url: shareUrl,
+        });
+
+        return;
+      }
+
+      // 💻 fallback desktop
+      await navigator.clipboard.writeText(shareUrl);
+
+      alert("Link copiado ✅");
+    } catch (error) {
+      console.error(error);
+    }
+  };
   const copyEmail = async (email: string) => {
     try {
       await navigator.clipboard.writeText(email);
@@ -239,7 +262,7 @@ export default function AdminPage() {
                     </div>
 
                     {/* ⚙ ACCIONES */}
-                    <div className="flex justify-between items-center mt-4">
+                    <div className="flex flex-wrap gap-3 items-center mt-4">
                       <a
                         href={`/administracion/edit/${prop.id}`}
                         className="text-blue-600 hover:underline"
@@ -252,6 +275,15 @@ export default function AdminPage() {
                         className="text-red-600 hover:underline"
                       >
                         Eliminar
+                      </button>
+
+                      {/* 🔗 COMPARTIR */}
+                      <button
+                        onClick={() => handleShare(prop)}
+                        className="flex items-center gap-1 text-gray-700 hover:text-black transition"
+                      >
+                        <Share2 size={16} />
+                        Compartir
                       </button>
                     </div>
                   </div>

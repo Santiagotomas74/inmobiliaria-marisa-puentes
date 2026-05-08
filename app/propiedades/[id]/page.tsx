@@ -15,6 +15,7 @@ import {
   SolarPanel,
 } from "lucide-react";
 import { FaWhatsapp } from "react-icons/fa";
+import { Share2 } from "lucide-react";
 import Footer from "@/app/components/home/Footer";
 
 export default function PropertyDetail() {
@@ -34,6 +35,30 @@ export default function PropertyDetail() {
 
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+
+  const handleShare = async () => {
+    const shareUrl = window.location.href;
+
+    try {
+      // 📱 share nativo mobile
+      if (navigator.share) {
+        await navigator.share({
+          title: property.title,
+          text: `Mirá esta propiedad: ${property.title}`,
+          url: shareUrl,
+        });
+
+        return;
+      }
+
+      // 💻 fallback desktop
+      await navigator.clipboard.writeText(shareUrl);
+
+      alert("Link copiado ✅");
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   useEffect(() => {
     const fetchProperty = async () => {
@@ -376,6 +401,15 @@ ${form.message}
                 </div>
 
                 {/* 🔥 BOTONES */}
+                {/* 🔗 COMPARTIR */}
+                <button
+                  onClick={handleShare}
+                  className="w-full flex items-center justify-center gap-2 bg-white/10 border border-white/20 py-3 rounded-xl hover:bg-white hover:text-black transition font-medium mb-4"
+                >
+                  <Share2 size={18} />
+                  Compartir propiedad
+                </button>
+
                 <div className="space-y-3">
                   {/* WhatsApp */}
                   <a
