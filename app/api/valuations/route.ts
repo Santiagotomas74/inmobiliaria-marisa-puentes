@@ -14,6 +14,7 @@ export async function GET() {
         property_type,
         zone,
         status,
+        notes,
         created_at
       FROM property_valuations
       ORDER BY created_at DESC

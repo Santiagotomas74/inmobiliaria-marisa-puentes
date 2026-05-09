@@ -111,6 +111,7 @@ export default function AdminPage() {
   const fetchTasaciones = async () => {
     const res = await fetch(`/api/valuations`);
     const data = await res.json();
+    console.log(data);
     setTasaciones(data);
   };
 
@@ -330,7 +331,7 @@ export default function AdminPage() {
                 const isNew =
                   t.created_at &&
                   new Date().getTime() - new Date(t.created_at).getTime() <
-                    1000 * 60 * 60 * 24;
+                    1000 * 60 * 60 * 24 * 7;
 
                 return (
                   <div
@@ -431,7 +432,7 @@ export default function AdminPage() {
                 const isNew =
                   m.created_at &&
                   new Date().getTime() - new Date(m.created_at).getTime() <
-                    1000 * 60 * 60 * 24;
+                    1000 * 60 * 60 * 24 * 7;
 
                 return (
                   <div
