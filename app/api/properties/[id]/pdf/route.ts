@@ -542,13 +542,11 @@ export async function GET(
 
     const pdfBytes = await pdf.save();
 
-    return new NextResponse(pdfBytes, {
+    return new NextResponse(Buffer.from(pdfBytes), {
       status: 200,
       headers: {
         "Content-Type": "application/pdf",
-
         "Content-Disposition": `inline; filename="ficha-propiedad-${property.id}.pdf"`,
-
         "Cache-Control": "no-store, max-age=0",
       },
     });
