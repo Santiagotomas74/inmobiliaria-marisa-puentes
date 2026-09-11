@@ -1,7 +1,15 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { BedDouble, Bath, RulerDimensionLine, DoorClosed } from "lucide-react";
+import { useRouter } from "next/navigation";
+
+import {
+  BedDouble,
+  Bath,
+  RulerDimensionLine,
+  DoorClosed,
+  FileText,
+} from "lucide-react";
 import { Copy, Mail, MessageCircle } from "lucide-react";
 import { FaWhatsapp } from "react-icons/fa";
 import { Share2 } from "lucide-react";
@@ -49,6 +57,7 @@ export default function AdminPage() {
   const [properties, setProperties] = useState<Property[]>([]);
   const [tasaciones, setTasaciones] = useState<Tasacion[]>([]);
   const [mensajes, setMensajes] = useState<Message[]>([]);
+  const router = useRouter();
   const handleShare = async (prop: any) => {
     const shareUrl = `${window.location.origin}/propiedades/${prop.id}`;
 
@@ -188,6 +197,7 @@ export default function AdminPage() {
               {properties.map((prop) => (
                 <div
                   key={prop.id}
+                  onClick={() => router.push(`/propiedades/${prop.id}`)}
                   className="relative bg-white rounded-2xl shadow hover:shadow-xl transition overflow-hidden"
                 >
                   {/* 🖼 IMAGEN / 🎥 VIDEO */}
@@ -286,15 +296,33 @@ export default function AdminPage() {
 
                     {/* ⚙ ACCIONES */}
                     <div className="flex flex-wrap gap-3 items-center mt-4">
+                      {/* 📄 PDF */}
+                      <a
+                        href={`/api/properties/${prop.id}/pdf`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={(e) => e.stopPropagation()}
+                        className="flex items-center gap-2 bg-black text-white px-3 py-2 rounded-xl hover:bg-gray-800 transition text-sm"
+                      >
+                        <FileText size={16} />
+                        Ver PDF
+                      </a>
+
+                      {/* ✏️ EDITAR */}
                       <a
                         href={`/administracion/edit/${prop.id}`}
+                        onClick={(e) => e.stopPropagation()}
                         className="text-blue-600 hover:underline"
                       >
                         Editar
                       </a>
 
+                      {/* 🗑️ ELIMINAR */}
                       <button
-                        onClick={() => handleDelete(prop.id)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDelete(prop.id);
+                        }}
                         className="text-red-600 hover:underline"
                       >
                         Eliminar
@@ -302,7 +330,10 @@ export default function AdminPage() {
 
                       {/* 🔗 COMPARTIR */}
                       <button
-                        onClick={() => handleShare(prop)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleShare(prop);
+                        }}
                         className="flex items-center gap-1 text-gray-700 hover:text-black transition"
                       >
                         <Share2 size={16} />

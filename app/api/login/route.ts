@@ -5,57 +5,66 @@ import jwt from "jsonwebtoken";
 export async function POST(req: NextRequest) {
   try {
     const { email, password } = await req.json();
-    console.log("credenciales " , email, password )
-    // 🔐 Credenciales desde .env
-    const ADMIN_EMAIL = process.env.ADMIN_EMAIL;
-    const ADMIN_PASS = process.env.ADMIN_PASS; // hash bcrypt
 
-    // 1️⃣ Validar email
-    if (email !== ADMIN_EMAIL) {
-      console.log(email, ADMIN_EMAIL)
+    const ADMIN_EMAIL = process.env.ADMIN_EMAIL;
+    const ADMIN_PASS = process.env.ADMIN_PASS;
+    const JWT_SECRET = process.env.JWT_SECRET;
+    const JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET;
+
+    // Verificar que las variables existan
+    if (!ADMIN_EMAIL || !ADMIN_PASS || !JWT_SECRET || !JWT_REFRESH_SECRET) {
+      console.error("Faltan variables de entorno");
+
       return NextResponse.json(
-        { error: "Credenciales inválidas" },
-        { status: 401 }
+        { error: "Error de configuración del servidor" },
+        { status: 500 },
       );
     }
 
-    // 2️⃣ Validar password (comparando con hash)
-    const isValid = await bcrypt.compare(password, ADMIN_PASS!);
-    console.log(isValid, password, ADMIN_PASS)
+    // Validar email
+    if (email !== ADMIN_EMAIL) {
+      return NextResponse.json(
+        { error: "Credenciales inválidas" },
+        { status: 401 },
+      );
+    }
+
+    // Comparar contraseña ingresada contra hash bcrypt
+    const isValid = await bcrypt.compare(password, ADMIN_PASS);
+
     if (!isValid) {
       return NextResponse.json(
         { error: "Credenciales inválidas" },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
-    // 👤 Usuario fake (porque no viene de DB)
     const user = {
       id: 1,
       email: ADMIN_EMAIL,
       role: "admin",
     };
 
-    // 3️⃣ Access Token
+    // Access Token
     const accessToken = jwt.sign(
       {
         id: user.id,
         email: user.email,
         role: user.role,
       },
-      process.env.JWT_SECRET!,
-      { expiresIn: "1h" }
+      JWT_SECRET,
+      { expiresIn: "1h" },
     );
 
-    // 4️⃣ Refresh Token
+    // Refresh Token
     const refreshToken = jwt.sign(
       {
         id: user.id,
         email: user.email,
         role: user.role,
       },
-      process.env.JWT_REFRESH_SECRET!,
-      { expiresIn: "7d" }
+      JWT_REFRESH_SECRET,
+      { expiresIn: "7d" },
     );
 
     const response = NextResponse.json({
@@ -63,25 +72,22 @@ export async function POST(req: NextRequest) {
       role: user.role,
     });
 
-    // 📧 Email visible en frontend
-    response.cookies.set("emailTech", user.email!, {
+    response.cookies.set("emailTech", user.email, {
       httpOnly: false,
       path: "/",
     });
 
-    // 🔐 Access Token
     response.cookies.set("tokenTtech", accessToken, {
       httpOnly: true,
-      secure: true,
+      secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
       path: "/",
-      maxAge: 60 * 60 * 2,
+      maxAge: 60 * 60,
     });
 
-    // 🔄 Refresh Token
     response.cookies.set("refreshTokenTech", refreshToken, {
       httpOnly: true,
-      secure: true,
+      secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
       path: "/",
       maxAge: 60 * 60 * 24 * 7,
@@ -90,13 +96,9 @@ export async function POST(req: NextRequest) {
     console.log("Login exitoso (ADMIN):", email);
 
     return response;
-
   } catch (error) {
-    console.error(error);
+    console.error("Error en login:", error);
 
-    return NextResponse.json(
-      { error: "Error en login" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Error en login" }, { status: 500 });
   }
 }
