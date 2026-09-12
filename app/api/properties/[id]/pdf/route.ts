@@ -1,4 +1,6 @@
+export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
+
 import { NextRequest, NextResponse } from "next/server";
 import { query } from "@/db";
 import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
@@ -66,39 +68,73 @@ const CONTACT = {
 
 async function downloadImage(url: string): Promise<ImageData | null> {
   try {
-    const response = await fetch(url);
+    const controller = new AbortController();
+
+    const timeout = setTimeout(() => {
+      controller.abort();
+    }, 10000);
+
+    const response = await fetch(url, {
+      signal: controller.signal,
+    });
+
+    clearTimeout(timeout);
 
     if (!response.ok) {
+      console.error(
+        `No se pudo descargar imagen. Status: ${response.status}`,
+        url,
+      );
+
       return null;
     }
 
     const arrayBuffer = await response.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
 
-    try {
-      // sharp.rotate() auto-orienta la imagen según los metadatos EXIF
-      // y ajusta físicamente la matriz de píxeles antes de incrustar en pdf-lib
-      const processedBuffer = await sharp(buffer)
-        .rotate()
-        .jpeg({ quality: 90 })
-        .toBuffer();
+    /*
+     * Normalizamos todas las imágenes a JPEG.
+     *
+     * Esto evita problemas con:
+     * - WebP
+     * - HEIC
+     * - PNG especiales
+     * - EXIF
+     * - orientación de cámara
+     *
+     * También reducimos dimensiones para que Vercel no tenga
+     * que procesar imágenes gigantes innecesariamente.
+     */
+    const processedBuffer = await sharp(buffer)
+      .rotate()
+      .resize({
+        width: 1600,
+        height: 1200,
+        fit: "inside",
+        withoutEnlargement: true,
+      })
+      .jpeg({
+        quality: 90,
+        mozjpeg: true,
+      })
+      .toBuffer();
 
-      return {
-        buffer: processedBuffer,
-        type: "jpg",
-      };
-    } catch {
-      // Fallback si sharp falla
-      const contentType = response.headers.get("content-type") || "";
-      if (contentType.includes("png")) {
-        return { buffer, type: "png" };
-      }
-      return { buffer, type: "jpg" };
-    }
-  } catch {
+    return {
+      buffer: processedBuffer,
+      type: "jpg",
+    };
+  } catch (error) {
+    console.error("Error procesando imagen:", url, error);
+
     return null;
   }
 }
+
+/*
+ * ============================================================
+ * PRECIO
+ * ============================================================
+ */
 
 function formatPropertyPrice(property: Property): string {
   const operation = (property.operation || "").toLowerCase();
@@ -142,6 +178,12 @@ function formatPropertyPrice(property: Property): string {
   return "Consultar";
 }
 
+/*
+ * ============================================================
+ * TEXTO
+ * ============================================================
+ */
+
 function drawText(
   page: any,
   text: string,
@@ -169,6 +211,12 @@ function truncateText(text: string, maxLength: number): string {
 
   return `${text.substring(0, maxLength - 3)}...`;
 }
+
+/*
+ * ============================================================
+ * IMAGEN PROPORCIONAL
+ * ============================================================
+ */
 
 function drawImageFit(
   page: any,
@@ -204,6 +252,12 @@ function drawImageFit(
   });
 }
 
+/*
+ * ============================================================
+ * FEATURE CARD
+ * ============================================================
+ */
+
 function drawFeatureCard(
   page: any,
   x: number,
@@ -238,12 +292,24 @@ function drawFeatureCard(
   drawText(page, value, x + 10, y + 12, boldFont, 11, COLORS.navy);
 }
 
+/*
+ * ============================================================
+ * GET
+ * ============================================================
+ */
+
 export async function GET(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const { id } = await params;
+
+    /*
+     * ========================================================
+     * BUSCAR PROPIEDAD
+     * ========================================================
+     */
 
     const result = await query(
       `
@@ -281,7 +347,13 @@ export async function GET(
       );
     }
 
-    const property = result.rows[0];
+    const property: Property = result.rows[0];
+
+    /*
+     * ========================================================
+     * CREAR PDF
+     * ========================================================
+     */
 
     const pdf = await PDFDocument.create();
 
@@ -292,9 +364,9 @@ export async function GET(
     const page = pdf.addPage([PAGE_WIDTH, PAGE_HEIGHT]);
 
     /*
-     * ============================================================
+     * ========================================================
      * MEDIA
-     * ============================================================
+     * ========================================================
      */
 
     const media = (property.media || [])
@@ -305,46 +377,58 @@ export async function GET(
           type.includes("image") ||
           type.includes("jpg") ||
           type.includes("jpeg") ||
-          type.includes("png")
+          type.includes("png") ||
+          type.includes("webp")
         );
       })
       .sort((a: Media, b: Media) => {
         return a.position - b.position;
       });
 
+    /*
+     * Mantener exactamente el mismo orden:
+     *
+     * 1. Imagen principal
+     * 2. Resto según position
+     *
+     * Máximo 4 imágenes.
+     */
+
     const orderedMedia = [
       ...media.filter((item: Media) => item.is_main),
       ...media.filter((item: Media) => !item.is_main),
     ].slice(0, 4);
 
-    const images: any[] = [];
+    /*
+     * ========================================================
+     * DESCARGAR IMÁGENES EN PARALELO
+     * ========================================================
+     */
 
-    for (const item of orderedMedia) {
-      const imageData = await downloadImage(item.url);
+    const downloadedImages = await Promise.all(
+      orderedMedia.map(async (item: Media) => {
+        const imageData = await downloadImage(item.url);
 
-      if (!imageData) {
-        continue;
-      }
-
-      try {
-        let embeddedImage;
-
-        if (imageData.type === "png") {
-          embeddedImage = await pdf.embedPng(imageData.buffer);
-        } else {
-          embeddedImage = await pdf.embedJpg(imageData.buffer);
+        if (!imageData) {
+          return null;
         }
 
-        images.push(embeddedImage);
-      } catch {
-        // Ignorar imagen si falla la inserción
-      }
-    }
+        try {
+          return await pdf.embedJpg(imageData.buffer);
+        } catch (error) {
+          console.error("Error insertando imagen en PDF:", item.url, error);
+
+          return null;
+        }
+      }),
+    );
+
+    const images = downloadedImages.filter(Boolean);
 
     /*
-     * ============================================================
+     * ========================================================
      * LOGO
-     * ============================================================
+     * ========================================================
      */
 
     let logoImage: any = null;
@@ -355,16 +439,29 @@ export async function GET(
       if (fs.existsSync(logoPath)) {
         const logoBuffer = fs.readFileSync(logoPath);
 
-        logoImage = await pdf.embedJpg(logoBuffer);
+        /*
+         * Procesamos el logo como JPEG para evitar problemas
+         * con formatos inesperados.
+         */
+        const processedLogo = await sharp(logoBuffer)
+          .rotate()
+          .jpeg({
+            quality: 90,
+          })
+          .toBuffer();
+
+        logoImage = await pdf.embedJpg(processedLogo);
       }
-    } catch {
+    } catch (error) {
+      console.error("No se pudo cargar el logo:", error);
+
       logoImage = null;
     }
 
     /*
-     * ============================================================
+     * ========================================================
      * HEADER
-     * ============================================================
+     * ========================================================
      */
 
     const HEADER_HEIGHT = 46;
@@ -435,9 +532,9 @@ export async function GET(
     );
 
     /*
-     * ============================================================
+     * ========================================================
      * LAYOUT PRINCIPAL
-     * ============================================================
+     * ========================================================
      */
 
     const contentTop = PAGE_HEIGHT - HEADER_HEIGHT - 10;
@@ -452,9 +549,9 @@ export async function GET(
     const RIGHT_WIDTH = PAGE_WIDTH - RIGHT_X - MARGIN;
 
     /*
-     * ============================================================
+     * ========================================================
      * GALERÍA
-     * ============================================================
+     * ========================================================
      */
 
     const mainImageHeight = 290;
@@ -538,9 +635,9 @@ export async function GET(
     }
 
     /*
-     * ============================================================
+     * ========================================================
      * INFORMACIÓN DERECHA
-     * ============================================================
+     * ========================================================
      */
 
     const titleY = galleryTop - 2;
@@ -570,9 +667,9 @@ export async function GET(
     }
 
     /*
-     * ============================================================
+     * ========================================================
      * PRECIO
-     * ============================================================
+     * ========================================================
      */
 
     const priceBoxHeight = 65;
@@ -608,9 +705,9 @@ export async function GET(
     );
 
     /*
-     * ============================================================
+     * ========================================================
      * CARACTERÍSTICAS
-     * ============================================================
+     * ========================================================
      */
 
     const cardsGap = 8;
@@ -700,12 +797,13 @@ export async function GET(
     );
 
     /*
-     * ============================================================
+     * ========================================================
      * CONTACTO + QR
-     * ============================================================
+     * ========================================================
      */
 
     const contactHeight = 78;
+
     const contactY = MARGIN;
 
     page.drawRectangle({
@@ -761,9 +859,9 @@ export async function GET(
     );
 
     /*
-     * ============================================================
+     * ========================================================
      * QR
-     * ============================================================
+     * ========================================================
      */
 
     const propertyUrl = `${req.nextUrl.origin}/propiedades/${property.id}`;
@@ -809,9 +907,9 @@ export async function GET(
     );
 
     /*
-     * ============================================================
+     * ========================================================
      * CÓDIGO DE PROPIEDAD
-     * ============================================================
+     * ========================================================
      */
 
     drawText(
@@ -825,9 +923,9 @@ export async function GET(
     );
 
     /*
-     * ============================================================
+     * ========================================================
      * GENERAR PDF
-     * ============================================================
+     * ========================================================
      */
 
     const pdfBytes = await pdf.save();
