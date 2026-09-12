@@ -4,6 +4,7 @@ import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
 import QRCode from "qrcode";
 import fs from "fs";
 import path from "path";
+import sharp from "sharp";
 
 type Media = {
   id: number;
@@ -70,31 +71,29 @@ async function downloadImage(url: string): Promise<ImageData | null> {
       return null;
     }
 
-    const contentType = response.headers.get("content-type") || "";
-
     const arrayBuffer = await response.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
 
-    if (contentType.includes("png")) {
-      return {
-        buffer,
-        type: "png",
-      };
-    }
+    try {
+      // sharp.rotate() auto-orienta la imagen según los metadatos EXIF
+      // y ajusta físicamente la matriz de píxeles antes de incrustar en pdf-lib
+      const processedBuffer = await sharp(buffer)
+        .rotate()
+        .jpeg({ quality: 90 })
+        .toBuffer();
 
-    if (
-      contentType.includes("jpeg") ||
-      contentType.includes("jpg") ||
-      url.toLowerCase().includes(".jpg") ||
-      url.toLowerCase().includes(".jpeg")
-    ) {
       return {
-        buffer,
+        buffer: processedBuffer,
         type: "jpg",
       };
+    } catch {
+      // Fallback si sharp falla
+      const contentType = response.headers.get("content-type") || "";
+      if (contentType.includes("png")) {
+        return { buffer, type: "png" };
+      }
+      return { buffer, type: "jpg" };
     }
-
-    return null;
   } catch {
     return null;
   }
@@ -312,14 +311,6 @@ export async function GET(
         return a.position - b.position;
       });
 
-    /*
-     * Ahora utilizamos hasta 4 imágenes:
-     *
-     * images[0] = imagen principal
-     * images[1] = miniatura 1
-     * images[2] = miniatura 2
-     * images[3] = miniatura 3
-     */
     const orderedMedia = [
       ...media.filter((item) => item.is_main),
       ...media.filter((item) => !item.is_main),
@@ -345,8 +336,7 @@ export async function GET(
 
         images.push(embeddedImage);
       } catch {
-        // Si una imagen no puede ser embebida,
-        // simplemente continuamos con las demás.
+        // Ignorar imagen si falla la inserción
       }
     }
 
@@ -474,10 +464,6 @@ export async function GET(
 
     const thumbnailHeight = 82;
 
-    /*
-     * Imagen principal
-     */
-
     const mainImageY = galleryTop - mainImageHeight;
 
     page.drawRectangle({
@@ -510,20 +496,6 @@ export async function GET(
         COLORS.textSoft,
       );
     }
-
-    /*
-     * ============================================================
-     * 3 MINIATURAS
-     * ============================================================
-     *
-     * Antes:
-     *   [imagen] [imagen] [QR]
-     *
-     * Ahora:
-     *   [imagen] [imagen] [imagen]
-     *
-     * El QR fue movido a la ficha derecha.
-     */
 
     const thumbnailsY = mainImageY - 8 - thumbnailHeight;
 
@@ -571,12 +543,6 @@ export async function GET(
      */
 
     const titleY = galleryTop - 2;
-
-    /*
-     * El QR estará en la ficha de contacto,
-     * por lo que el título puede ocupar todo
-     * el ancho disponible.
-     */
 
     const title = truncateText(property.title || "Propiedad", 48);
 
@@ -654,10 +620,6 @@ export async function GET(
 
     const cardsTop = priceBoxY - 12;
 
-    /*
-     * Fila 1
-     */
-
     const row1Y = cardsTop - cardHeight;
 
     drawFeatureCard(
@@ -684,10 +646,6 @@ export async function GET(
       boldFont,
     );
 
-    /*
-     * Fila 2
-     */
-
     const row2Y = row1Y - 7 - cardHeight;
 
     drawFeatureCard(
@@ -713,10 +671,6 @@ export async function GET(
       regularFont,
       boldFont,
     );
-
-    /*
-     * Fila 3
-     */
 
     const row3Y = row2Y - 7 - cardHeight;
 
@@ -763,15 +717,7 @@ export async function GET(
       borderWidth: 0.8,
     });
 
-    /*
-     * Área de texto del contacto.
-     *
-     * Dejamos espacio a la derecha para el QR.
-     */
-
     const qrAreaWidth = 76;
-
-    const contactTextWidth = RIGHT_WIDTH - qrAreaWidth - 12;
 
     drawText(
       page,
@@ -817,9 +763,6 @@ export async function GET(
      * ============================================================
      * QR
      * ============================================================
-     *
-     * Ahora está dentro de la ficha derecha,
-     * en lugar de ocupar una miniatura.
      */
 
     const propertyUrl = `${req.nextUrl.origin}/propiedades/${property.id}`;
