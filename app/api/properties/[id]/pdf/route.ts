@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from "next/server";
 import { query } from "@/db";
 import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
