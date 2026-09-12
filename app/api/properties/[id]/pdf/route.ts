@@ -244,7 +244,7 @@ export async function GET(
   try {
     const { id } = await params;
 
-    const result = await query<Property>(
+    const result = await query(
       `
         SELECT
           p.*,
@@ -297,7 +297,7 @@ export async function GET(
      */
 
     const media = (property.media || [])
-      .filter((item) => {
+      .filter((item: Media) => {
         const type = (item.type || "").toLowerCase();
 
         return (
@@ -307,13 +307,13 @@ export async function GET(
           type.includes("png")
         );
       })
-      .sort((a, b) => {
+      .sort((a: Media, b: Media) => {
         return a.position - b.position;
       });
 
     const orderedMedia = [
-      ...media.filter((item) => item.is_main),
-      ...media.filter((item) => !item.is_main),
+      ...media.filter((item: Media) => item.is_main),
+      ...media.filter((item: Media) => !item.is_main),
     ].slice(0, 4);
 
     const images: any[] = [];
