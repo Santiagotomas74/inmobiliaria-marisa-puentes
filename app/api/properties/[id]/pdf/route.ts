@@ -135,18 +135,39 @@ async function downloadImage(url: string): Promise<ImageData | null> {
 |--------------------------------------------------------------------------
 */
 
-function formatPrice(price: number | null, currency: string | null) {
-  if (price === null || price === undefined) {
+function formatPropertyPrice(property: Property) {
+  const operation = (property.operation || "").toLowerCase().trim();
+
+  const isRental =
+    operation.includes("alquiler") ||
+    operation.includes("alquilar") ||
+    operation.includes("rent");
+
+  /*
+   * ALQUILER
+   * Siempre mostramos el precio en pesos argentinos.
+   */
+  if (isRental) {
+    if (property.price_ars === null || property.price_ars === undefined) {
+      return "Consultar";
+    }
+
+    const formatted = new Intl.NumberFormat("es-AR").format(property.price_ars);
+
+    return `$ ${formatted}`;
+  }
+
+  /*
+   * VENTA
+   * Siempre mostramos el precio en dólares.
+   */
+  if (property.price === null || property.price === undefined) {
     return "Consultar";
   }
 
-  const formatted = new Intl.NumberFormat("es-AR").format(price);
+  const formatted = new Intl.NumberFormat("es-AR").format(property.price);
 
-  if (currency?.toUpperCase() === "USD") {
-    return `U$S ${formatted}`;
-  }
-
-  return `$ ${formatted}`;
+  return `U$S ${formatted}`;
 }
 
 /*
@@ -476,9 +497,9 @@ export async function GET(
     | OPERACIÓN
     |--------------------------------------------------------------------------
     */
+    const operationRaw = (property.operation || "VENTA").toLowerCase().trim();
 
-    const operation = (property.operation || "VENTA").toUpperCase();
-
+    const operation = operationRaw.includes("alquiler") ? "ALQUILER" : "VENTA";
     const operationWidth = boldFont.widthOfTextAtSize(operation, 10);
 
     page.drawRectangle({
@@ -709,7 +730,7 @@ export async function GET(
       COLORS.navy,
     );
 
-    const price = formatPrice(property.price, property.currency);
+    const price = formatPropertyPrice(property);
 
     drawText(
       page,
