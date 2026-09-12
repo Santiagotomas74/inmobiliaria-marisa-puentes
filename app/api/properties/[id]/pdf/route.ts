@@ -7,7 +7,6 @@ import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
 import QRCode from "qrcode";
 import fs from "fs";
 import path from "path";
-import sharp from "sharp";
 
 type Media = {
   id: number;
@@ -66,67 +65,199 @@ const CONTACT = {
   email: "marisapuentespropiedades@yahoo.com",
 };
 
-async function downloadImage(url: string): Promise<ImageData | null> {
+/*
+ * ============================================================
+ * IMÁGENES
+ * ============================================================
+ *
+ * NO usamos Sharp.
+ *
+ * IMPORTANTE:
+ *
+ * No usamos "a_auto".
+ *
+ * Esto significa que Cloudinary NO va a rotar la imagen
+ * automáticamente basándose en EXIF.
+ *
+ * La imagen se descarga respetando su orientación física
+ * original.
+ *
+ * Solamente:
+ *
+ *   - f_jpg  -> convierte a JPEG
+ *   - q_auto -> optimiza calidad/peso
+ *   - w_1600,h_1200,c_limit -> limita tamaño
+ */
+
+function getCloudinaryUrl(url: string): string {
   try {
-    const controller = new AbortController();
+    const parsed = new URL(url);
 
-    const timeout = setTimeout(() => {
-      controller.abort();
-    }, 10000);
+    if (!parsed.hostname.includes("cloudinary.com")) {
+      return url;
+    }
 
-    const response = await fetch(url, {
+    const pathname = parsed.pathname;
+
+    const uploadMarker = "/upload/";
+
+    const uploadIndex = pathname.indexOf(uploadMarker);
+
+    if (uploadIndex === -1) {
+      return url;
+    }
+
+    const beforeUpload = pathname.substring(
+      0,
+      uploadIndex + uploadMarker.length,
+    );
+
+    const afterUpload = pathname.substring(uploadIndex + uploadMarker.length);
+
+    /*
+     * NO usamos a_auto.
+     *
+     * De esta manera Cloudinary no intenta girar
+     * imágenes verticales automáticamente.
+     */
+
+    const transformation = "c_limit,w_1600,h_1200,f_jpg,q_auto";
+
+    return `${parsed.origin}${beforeUpload}${transformation}/${afterUpload}${parsed.search}`;
+  } catch (error) {
+    console.error("Error construyendo URL de Cloudinary:", url, error);
+
+    return url;
+  }
+}
+
+async function downloadImage(url: string): Promise<ImageData | null> {
+  const controller = new AbortController();
+
+  const timeout = setTimeout(() => {
+    controller.abort();
+  }, 10000);
+
+  try {
+    const finalUrl = getCloudinaryUrl(url);
+
+    console.log("========================================");
+    console.log("IMAGEN PDF");
+    console.log("Original:", url);
+    console.log("Procesada:", finalUrl);
+    console.log("========================================");
+
+    const response = await fetch(finalUrl, {
       signal: controller.signal,
+      headers: {
+        Accept: "image/jpeg,image/png",
+      },
     });
-
-    clearTimeout(timeout);
 
     if (!response.ok) {
       console.error(
-        `No se pudo descargar imagen. Status: ${response.status}`,
+        "No se pudo descargar imagen. Status:",
+        response.status,
         url,
       );
 
       return null;
     }
 
+    const contentType = (
+      response.headers.get("content-type") || ""
+    ).toLowerCase();
+
     const arrayBuffer = await response.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
 
-    /*
-     * Normalizamos todas las imágenes a JPEG.
-     *
-     * Esto evita problemas con:
-     * - WebP
-     * - HEIC
-     * - PNG especiales
-     * - EXIF
-     * - orientación de cámara
-     *
-     * También reducimos dimensiones para que Vercel no tenga
-     * que procesar imágenes gigantes innecesariamente.
-     */
-    const processedBuffer = await sharp(buffer)
-      .rotate()
-      .resize({
-        width: 1600,
-        height: 1200,
-        fit: "inside",
-        withoutEnlargement: true,
-      })
-      .jpeg({
-        quality: 90,
-        mozjpeg: true,
-      })
-      .toBuffer();
+    if (!buffer.length) {
+      console.error("La imagen llegó vacía:", url);
 
-    return {
-      buffer: processedBuffer,
-      type: "jpg",
-    };
-  } catch (error) {
-    console.error("Error procesando imagen:", url, error);
+      return null;
+    }
+
+    /*
+     * JPEG
+     *
+     * Comprobamos específicamente JPEG.
+     *
+     * NO usamos:
+     *
+     * contentType.includes("image")
+     *
+     * porque eso también puede detectar WebP, AVIF,
+     * etc. y luego pdf-lib intentaría leerlos como JPEG.
+     */
+
+    if (
+      contentType.includes("image/jpeg") ||
+      contentType.includes("image/jpg")
+    ) {
+      return {
+        buffer,
+        type: "jpg",
+      };
+    }
+
+    /*
+     * PNG
+     */
+
+    if (contentType.includes("image/png")) {
+      return {
+        buffer,
+        type: "png",
+      };
+    }
+
+    /*
+     * Detección por bytes.
+     *
+     * Esto sirve si el servidor no manda correctamente
+     * el Content-Type.
+     */
+
+    // JPEG
+    if (
+      buffer.length >= 3 &&
+      buffer[0] === 0xff &&
+      buffer[1] === 0xd8 &&
+      buffer[2] === 0xff
+    ) {
+      return {
+        buffer,
+        type: "jpg",
+      };
+    }
+
+    // PNG
+    if (
+      buffer.length >= 8 &&
+      buffer[0] === 0x89 &&
+      buffer[1] === 0x50 &&
+      buffer[2] === 0x4e &&
+      buffer[3] === 0x47 &&
+      buffer[4] === 0x0d &&
+      buffer[5] === 0x0a &&
+      buffer[6] === 0x1a &&
+      buffer[7] === 0x0a
+    ) {
+      return {
+        buffer,
+        type: "png",
+      };
+    }
+
+    console.error("Formato de imagen no compatible:", contentType, url);
 
     return null;
+  } catch (error) {
+    console.error("Error descargando imagen:", url, error);
+
+    return null;
+  } finally {
+    clearTimeout(timeout);
   }
 }
 
@@ -216,6 +347,13 @@ function truncateText(text: string, maxLength: number): string {
  * ============================================================
  * IMAGEN PROPORCIONAL
  * ============================================================
+ *
+ * IMPORTANTE:
+ *
+ * Esta función NO rota la imagen.
+ *
+ * Solamente calcula cómo colocarla dentro del espacio
+ * disponible manteniendo su proporción.
  */
 
 function drawImageFit(
@@ -414,6 +552,10 @@ export async function GET(
         }
 
         try {
+          if (imageData.type === "png") {
+            return await pdf.embedPng(imageData.buffer);
+          }
+
           return await pdf.embedJpg(imageData.buffer);
         } catch (error) {
           console.error("Error insertando imagen en PDF:", item.url, error);
@@ -439,18 +581,7 @@ export async function GET(
       if (fs.existsSync(logoPath)) {
         const logoBuffer = fs.readFileSync(logoPath);
 
-        /*
-         * Procesamos el logo como JPEG para evitar problemas
-         * con formatos inesperados.
-         */
-        const processedLogo = await sharp(logoBuffer)
-          .rotate()
-          .jpeg({
-            quality: 90,
-          })
-          .toBuffer();
-
-        logoImage = await pdf.embedJpg(processedLogo);
+        logoImage = await pdf.embedJpg(logoBuffer);
       }
     } catch (error) {
       console.error("No se pudo cargar el logo:", error);
