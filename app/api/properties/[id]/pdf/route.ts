@@ -15,51 +15,35 @@ type Media = {
 
 type Property = {
   id: number;
-  title: string | null;
-  price: number | null;
-  price_ars: number | null;
-  currency: string | null;
-  currency_ars: string | null;
-  operation: string | null;
-  type: string | null;
-  address: string | null;
-  city: string | null;
-  province: string | null;
-  bedrooms: number | null;
-  bathrooms: number | null;
-  rooms: number | null;
-  surface_total: number | null;
-  surface_covered: number | null;
-  garage: boolean | null;
-  condition: string | null;
-  media: Media[] | null;
+  title: string;
+  description?: string;
+  operation: string;
+  type: string;
+  address?: string;
+  city?: string;
+  province?: string;
+  price?: number;
+  price_ars?: number;
+  price_usd?: number;
+  bedrooms?: number;
+  bathrooms?: number;
+  rooms?: number;
+  surface_total?: number;
+  surface_covered?: number;
+  garage?: number;
+  condition?: string;
+  media?: Media[];
 };
 
 type ImageData = {
-  bytes: Uint8Array;
+  buffer: Buffer;
   type: "jpg" | "png";
 };
-
-/*
-|--------------------------------------------------------------------------
-| TAMAÑO
-|--------------------------------------------------------------------------
-|
-| 270 x 195 mm
-| Apaisado
-|
-*/
 
 const PAGE_WIDTH = (270 * 72) / 25.4;
 const PAGE_HEIGHT = (195 * 72) / 25.4;
 
 const MARGIN = 18;
-
-/*
-|--------------------------------------------------------------------------
-| COLORES
-|--------------------------------------------------------------------------
-*/
 
 const COLORS = {
   navy: rgb(0.075, 0.19, 0.34),
@@ -72,109 +56,91 @@ const COLORS = {
   white: rgb(1, 1, 1),
 };
 
-/*
-|--------------------------------------------------------------------------
-| CONTACTO
-|--------------------------------------------------------------------------
-*/
-
 const CONTACT = {
   name: "MARISA PUENTES PROPIEDADES",
   phone: "11 3700-1152",
   email: "marisapuentespropiedades@yahoo.com",
 };
 
-/*
-|--------------------------------------------------------------------------
-| DESCARGAR IMAGEN
-|--------------------------------------------------------------------------
-*/
-
 async function downloadImage(url: string): Promise<ImageData | null> {
   try {
     const response = await fetch(url);
 
     if (!response.ok) {
-      console.error("No se pudo descargar:", url);
       return null;
     }
 
-    const contentType = (
-      response.headers.get("content-type") || ""
-    ).toLowerCase();
+    const contentType = response.headers.get("content-type") || "";
 
-    const bytes = new Uint8Array(await response.arrayBuffer());
+    const arrayBuffer = await response.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
 
     if (contentType.includes("png")) {
       return {
-        bytes,
+        buffer,
         type: "png",
       };
     }
 
-    if (contentType.includes("jpeg") || contentType.includes("jpg")) {
+    if (
+      contentType.includes("jpeg") ||
+      contentType.includes("jpg") ||
+      url.toLowerCase().includes(".jpg") ||
+      url.toLowerCase().includes(".jpeg")
+    ) {
       return {
-        bytes,
+        buffer,
         type: "jpg",
       };
     }
 
-    console.warn("Formato no soportado:", contentType, url);
-
     return null;
-  } catch (error) {
-    console.error("Error descargando imagen:", error);
-
+  } catch {
     return null;
   }
 }
 
-/*
-|--------------------------------------------------------------------------
-| PRECIO
-|--------------------------------------------------------------------------
-*/
+function formatPropertyPrice(property: Property): string {
+  const operation = (property.operation || "").toLowerCase();
 
-function formatPropertyPrice(property: Property) {
-  const operation = (property.operation || "").toLowerCase().trim();
-
-  const isRental =
+  if (
     operation.includes("alquiler") ||
-    operation.includes("alquilar") ||
-    operation.includes("rent");
-
-  /*
-   * ALQUILER
-   * Siempre mostramos el precio en pesos argentinos.
-   */
-  if (isRental) {
-    if (property.price_ars === null || property.price_ars === undefined) {
-      return "Consultar";
+    operation.includes("rent") ||
+    operation.includes("temporario")
+  ) {
+    if (property.price_ars) {
+      return `$ ${Number(property.price_ars).toLocaleString("es-AR")}`;
     }
 
-    const formatted = new Intl.NumberFormat("es-AR").format(property.price_ars);
-
-    return `$ ${formatted}`;
+    if (property.price) {
+      return `$ ${Number(property.price).toLocaleString("es-AR")}`;
+    }
   }
 
-  /*
-   * VENTA
-   * Siempre mostramos el precio en dólares.
-   */
-  if (property.price === null || property.price === undefined) {
-    return "Consultar";
+  if (operation.includes("venta") || operation.includes("sale")) {
+    if (property.price_usd) {
+      return `USD ${Number(property.price_usd).toLocaleString("es-AR")}`;
+    }
+
+    if (property.price) {
+      return `USD ${Number(property.price).toLocaleString("es-AR")}`;
+    }
   }
 
-  const formatted = new Intl.NumberFormat("es-AR").format(property.price);
+  if (property.price_usd) {
+    return `USD ${Number(property.price_usd).toLocaleString("es-AR")}`;
+  }
 
-  return `U$S ${formatted}`;
+  if (property.price_ars) {
+    return `$ ${Number(property.price_ars).toLocaleString("es-AR")}`;
+  }
+
+  if (property.price) {
+    return `$ ${Number(property.price).toLocaleString("es-AR")}`;
+  }
+
+  return "Consultar";
 }
-
-/*
-|--------------------------------------------------------------------------
-| TEXTO
-|--------------------------------------------------------------------------
-*/
 
 function drawText(
   page: any,
@@ -188,31 +154,21 @@ function drawText(
   page.drawText(text, {
     x,
     y,
-    size,
     font,
+    size,
     color,
   });
 }
 
-/*
-|--------------------------------------------------------------------------
-| TEXTO TRUNCADO
-|--------------------------------------------------------------------------
-*/
+function truncateText(text: string, maxLength: number): string {
+  if (!text) return "";
 
-function truncateText(text: string, maxChars: number) {
-  if (text.length <= maxChars) {
+  if (text.length <= maxLength) {
     return text;
   }
 
-  return text.substring(0, maxChars - 3) + "...";
+  return `${text.substring(0, maxLength - 3)}...`;
 }
-
-/*
-|--------------------------------------------------------------------------
-| IMAGEN CONTAIN
-|--------------------------------------------------------------------------
-*/
 
 function drawImageFit(
   page: any,
@@ -222,57 +178,41 @@ function drawImageFit(
   width: number,
   height: number,
 ) {
-  // Fondo
-  page.drawRectangle({
-    x,
-    y,
-    width,
-    height,
-    color: COLORS.blueLighter,
-  });
+  const imageWidth = image.width;
+  const imageHeight = image.height;
 
-  const imageRatio = image.width / image.height;
-
+  const imageRatio = imageWidth / imageHeight;
   const boxRatio = width / height;
 
-  let drawWidth: number;
-  let drawHeight: number;
+  let drawWidth = width;
+  let drawHeight = height;
 
   if (imageRatio > boxRatio) {
-    drawWidth = width;
-    drawHeight = image.height * (width / image.width);
+    drawHeight = width / imageRatio;
   } else {
-    drawHeight = height;
-    drawWidth = image.width * (height / image.height);
+    drawWidth = height * imageRatio;
   }
 
-  const offsetX = (width - drawWidth) / 2;
-
-  const offsetY = (height - drawHeight) / 2;
+  const drawX = x + (width - drawWidth) / 2;
+  const drawY = y + (height - drawHeight) / 2;
 
   page.drawImage(image, {
-    x: x + offsetX,
-    y: y + offsetY,
+    x: drawX,
+    y: drawY,
     width: drawWidth,
     height: drawHeight,
   });
 }
 
-/*
-|--------------------------------------------------------------------------
-| TARJETA DE CARACTERÍSTICA
-|--------------------------------------------------------------------------
-*/
-
 function drawFeatureCard(
   page: any,
-  label: string,
-  value: string,
   x: number,
   y: number,
   width: number,
   height: number,
-  regularFont: any,
+  label: string,
+  value: string,
+  font: any,
   boldFont: any,
 ) {
   page.drawRectangle({
@@ -280,7 +220,7 @@ function drawFeatureCard(
     y,
     width,
     height,
-    color: COLORS.white,
+    color: COLORS.blueLighter,
     borderColor: COLORS.border,
     borderWidth: 0.8,
   });
@@ -289,20 +229,14 @@ function drawFeatureCard(
     page,
     label.toUpperCase(),
     x + 10,
-    y + height - 17,
-    boldFont,
-    6.5,
+    y + height - 16,
+    font,
+    6,
     COLORS.textSoft,
   );
 
-  drawText(page, value, x + 10, y + 10, boldFont, 11, COLORS.text);
+  drawText(page, value, x + 10, y + 12, boldFont, 11, COLORS.navy);
 }
-
-/*
-|--------------------------------------------------------------------------
-| GET
-|--------------------------------------------------------------------------
-*/
 
 export async function GET(
   req: NextRequest,
@@ -311,38 +245,32 @@ export async function GET(
   try {
     const { id } = await params;
 
-    /*
-    |--------------------------------------------------------------------------
-    | PROPIEDAD
-    |--------------------------------------------------------------------------
-    */
-
-    const { rows } = await query(
+    const result = await query<Property>(
       `
-      SELECT
-        p.*,
-        (
-          SELECT json_agg(
-            json_build_object(
-              'id', pm.id,
-              'url', pm.url,
-              'type', pm.type,
-              'is_main', pm.is_main,
-              'position', pm.position
+        SELECT
+          p.*,
+          (
+            SELECT json_agg(
+              json_build_object(
+                'id', pm.id,
+                'url', pm.url,
+                'type', pm.type,
+                'is_main', pm.is_main,
+                'position', pm.position
+              )
+              ORDER BY pm.position ASC
             )
-            ORDER BY pm.position ASC
-          )
-          FROM property_media pm
-          WHERE pm.property_id = p.id
-        ) AS media
-      FROM properties p
-      WHERE p.id = $1
-      LIMIT 1
+            FROM property_media pm
+            WHERE pm.property_id = p.id
+          ) AS media
+        FROM properties p
+        WHERE p.id = $1
+        LIMIT 1
       `,
       [id],
     );
 
-    if (!rows.length) {
+    if (!result.rows.length) {
       return NextResponse.json(
         {
           error: "Propiedad no encontrada",
@@ -353,13 +281,7 @@ export async function GET(
       );
     }
 
-    const property = rows[0] as Property;
-
-    /*
-    |--------------------------------------------------------------------------
-    | PDF
-    |--------------------------------------------------------------------------
-    */
+    const property = result.rows[0];
 
     const pdf = await PDFDocument.create();
 
@@ -370,14 +292,14 @@ export async function GET(
     const page = pdf.addPage([PAGE_WIDTH, PAGE_HEIGHT]);
 
     /*
-    |--------------------------------------------------------------------------
-    | MEDIA
-    |--------------------------------------------------------------------------
-    */
+     * ============================================================
+     * MEDIA
+     * ============================================================
+     */
 
     const media = (property.media || [])
       .filter((item) => {
-        const type = String(item.type || "").toLowerCase();
+        const type = (item.type || "").toLowerCase();
 
         return (
           type.includes("image") ||
@@ -386,45 +308,53 @@ export async function GET(
           type.includes("png")
         );
       })
-      .sort((a, b) => (a.position || 0) - (b.position || 0));
+      .sort((a, b) => {
+        return a.position - b.position;
+      });
 
     /*
-    |--------------------------------------------------------------------------
-    | 3 IMÁGENES
-    |--------------------------------------------------------------------------
-    */
-
+     * Ahora utilizamos hasta 4 imágenes:
+     *
+     * images[0] = imagen principal
+     * images[1] = miniatura 1
+     * images[2] = miniatura 2
+     * images[3] = miniatura 3
+     */
     const orderedMedia = [
       ...media.filter((item) => item.is_main),
       ...media.filter((item) => !item.is_main),
-    ].slice(0, 3);
+    ].slice(0, 4);
 
     const images: any[] = [];
 
     for (const item of orderedMedia) {
-      const downloaded = await downloadImage(item.url);
+      const imageData = await downloadImage(item.url);
 
-      if (!downloaded) {
+      if (!imageData) {
         continue;
       }
 
       try {
-        const embedded =
-          downloaded.type === "png"
-            ? await pdf.embedPng(downloaded.bytes)
-            : await pdf.embedJpg(downloaded.bytes);
+        let embeddedImage;
 
-        images.push(embedded);
-      } catch (error) {
-        console.error("Error insertando imagen:", item.url, error);
+        if (imageData.type === "png") {
+          embeddedImage = await pdf.embedPng(imageData.buffer);
+        } else {
+          embeddedImage = await pdf.embedJpg(imageData.buffer);
+        }
+
+        images.push(embeddedImage);
+      } catch {
+        // Si una imagen no puede ser embebida,
+        // simplemente continuamos con las demás.
       }
     }
 
     /*
-    |--------------------------------------------------------------------------
-    | LOGO
-    |--------------------------------------------------------------------------
-    */
+     * ============================================================
+     * LOGO
+     * ============================================================
+     */
 
     let logoImage: any = null;
 
@@ -432,17 +362,19 @@ export async function GET(
       const logoPath = path.join(process.cwd(), "public", "logo.jpeg");
 
       if (fs.existsSync(logoPath)) {
-        logoImage = await pdf.embedJpg(fs.readFileSync(logoPath));
+        const logoBuffer = fs.readFileSync(logoPath);
+
+        logoImage = await pdf.embedJpg(logoBuffer);
       }
-    } catch (error) {
-      console.warn("No se pudo cargar logo.jpeg");
+    } catch {
+      logoImage = null;
     }
 
     /*
-    |--------------------------------------------------------------------------
-    | HEADER
-    |--------------------------------------------------------------------------
-    */
+     * ============================================================
+     * HEADER
+     * ============================================================
+     */
 
     const HEADER_HEIGHT = 46;
 
@@ -454,85 +386,72 @@ export async function GET(
       color: COLORS.navy,
     });
 
-    /*
-    |--------------------------------------------------------------------------
-    | LOGO / MARCA
-    |--------------------------------------------------------------------------
-    */
-
     if (logoImage) {
-      const logoHeight = 28;
-      const logoWidth = (logoImage.width / logoImage.height) * logoHeight;
-
-      page.drawImage(logoImage, {
-        x: MARGIN,
-        y: PAGE_HEIGHT - HEADER_HEIGHT + 9,
-        width: logoWidth,
-        height: logoHeight,
-      });
-    } else {
-      drawText(
+      drawImageFit(
         page,
-        "MARISA PUENTES",
+        logoImage,
         MARGIN,
-        PAGE_HEIGHT - 21,
-        boldFont,
-        14,
-        COLORS.white,
-      );
-
-      drawText(
-        page,
-        "PROPIEDADES",
-        MARGIN,
-        PAGE_HEIGHT - 34,
-        regularFont,
-        7,
-        rgb(0.82, 0.88, 0.94),
+        PAGE_HEIGHT - HEADER_HEIGHT + 7,
+        34,
+        32,
       );
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | OPERACIÓN
-    |--------------------------------------------------------------------------
-    */
-    const operationRaw = (property.operation || "VENTA").toLowerCase().trim();
+    const brandX = logoImage ? MARGIN + 43 : MARGIN;
 
-    const operation = operationRaw.includes("alquiler") ? "ALQUILER" : "VENTA";
-    const operationWidth = boldFont.widthOfTextAtSize(operation, 10);
+    drawText(
+      page,
+      "MARISA PUENTES",
+      brandX,
+      PAGE_HEIGHT - 22,
+      boldFont,
+      11,
+      COLORS.white,
+    );
+
+    drawText(
+      page,
+      "PROPIEDADES",
+      brandX,
+      PAGE_HEIGHT - 34,
+      regularFont,
+      6.5,
+      COLORS.white,
+    );
+
+    const operationText = (property.operation || "PROPIEDAD").toUpperCase();
+
+    const operationWidth = boldFont.widthOfTextAtSize(operationText, 7);
+
+    const operationBoxWidth = operationWidth + 22;
 
     page.drawRectangle({
-      x: PAGE_WIDTH - MARGIN - operationWidth - 22,
-      y: PAGE_HEIGHT - HEADER_HEIGHT + 12,
-      width: operationWidth + 22,
-      height: 22,
+      x: PAGE_WIDTH - MARGIN - operationBoxWidth,
+      y: PAGE_HEIGHT - 35,
+      width: operationBoxWidth,
+      height: 20,
       color: COLORS.white,
     });
 
     drawText(
       page,
-      operation,
-      PAGE_WIDTH - MARGIN - operationWidth - 11,
-      PAGE_HEIGHT - HEADER_HEIGHT + 19,
+      operationText,
+      PAGE_WIDTH - MARGIN - operationBoxWidth + 11,
+      PAGE_HEIGHT - 28,
       boldFont,
-      10,
+      7,
       COLORS.navy,
     );
 
     /*
-    |--------------------------------------------------------------------------
-    | ZONA PRINCIPAL
-    |--------------------------------------------------------------------------
-    */
+     * ============================================================
+     * LAYOUT PRINCIPAL
+     * ============================================================
+     */
 
-    const contentTop = PAGE_HEIGHT - HEADER_HEIGHT - 12;
+    const contentTop = PAGE_HEIGHT - HEADER_HEIGHT - 10;
 
-    /*
-    |--------------------------------------------------------------------------
-    | COLUMNAS
-    |--------------------------------------------------------------------------
-    */
+    const galleryTop = contentTop;
 
     const LEFT_WIDTH = 425;
     const GAP = 20;
@@ -542,68 +461,86 @@ export async function GET(
     const RIGHT_WIDTH = PAGE_WIDTH - RIGHT_X - MARGIN;
 
     /*
-    |--------------------------------------------------------------------------
-    | FOTOS
-    |--------------------------------------------------------------------------
-    */
-
-    const galleryTop = contentTop;
+     * ============================================================
+     * GALERÍA
+     * ============================================================
+     */
 
     const mainImageHeight = 290;
 
-    const thumbnailsY = MARGIN + 42;
+    const thumbnailGap = 7;
+
+    const thumbnailWidth = (LEFT_WIDTH - thumbnailGap * 2) / 3;
 
     const thumbnailHeight = 82;
 
     /*
-    |--------------------------------------------------------------------------
-    | FOTO PRINCIPAL
-    |--------------------------------------------------------------------------
-    */
+     * Imagen principal
+     */
+
+    const mainImageY = galleryTop - mainImageHeight;
+
+    page.drawRectangle({
+      x: MARGIN,
+      y: mainImageY,
+      width: LEFT_WIDTH,
+      height: mainImageHeight,
+      color: COLORS.blueLighter,
+      borderColor: COLORS.border,
+      borderWidth: 0.8,
+    });
 
     if (images[0]) {
       drawImageFit(
         page,
         images[0],
         MARGIN,
-        thumbnailsY + thumbnailHeight + 8,
+        mainImageY,
         LEFT_WIDTH,
         mainImageHeight,
       );
     } else {
-      page.drawRectangle({
-        x: MARGIN,
-        y: thumbnailsY + thumbnailHeight + 8,
-        width: LEFT_WIDTH,
-        height: mainImageHeight,
-        color: COLORS.blueLighter,
-      });
-
       drawText(
         page,
         "SIN IMAGEN",
-        MARGIN + LEFT_WIDTH / 2 - 30,
-        thumbnailsY + thumbnailHeight + 8 + mainImageHeight / 2,
+        MARGIN + LEFT_WIDTH / 2 - 32,
+        mainImageY + mainImageHeight / 2,
         boldFont,
-        9,
+        8,
         COLORS.textSoft,
       );
     }
 
     /*
-    |--------------------------------------------------------------------------
-    | MINIATURAS
-    |--------------------------------------------------------------------------
-    */
+     * ============================================================
+     * 3 MINIATURAS
+     * ============================================================
+     *
+     * Antes:
+     *   [imagen] [imagen] [QR]
+     *
+     * Ahora:
+     *   [imagen] [imagen] [imagen]
+     *
+     * El QR fue movido a la ficha derecha.
+     */
 
-    const thumbnailGap = 7;
+    const thumbnailsY = mainImageY - 8 - thumbnailHeight;
 
-    const thumbnailWidth = (LEFT_WIDTH - thumbnailGap * 2) / 3;
-
-    for (let i = 0; i < 2; i++) {
+    for (let i = 0; i < 3; i++) {
       const image = images[i + 1];
 
       const x = MARGIN + i * (thumbnailWidth + thumbnailGap);
+
+      page.drawRectangle({
+        x,
+        y: thumbnailsY,
+        width: thumbnailWidth,
+        height: thumbnailHeight,
+        color: COLORS.blueLighter,
+        borderColor: COLORS.border,
+        borderWidth: 0.8,
+      });
 
       if (image) {
         drawImageFit(
@@ -615,31 +552,275 @@ export async function GET(
           thumbnailHeight,
         );
       } else {
-        page.drawRectangle({
-          x,
-          y: thumbnailsY,
-          width: thumbnailWidth,
-          height: thumbnailHeight,
-          color: COLORS.blueLighter,
-        });
+        drawText(
+          page,
+          "SIN IMAGEN",
+          x + thumbnailWidth / 2 - 27,
+          thumbnailsY + thumbnailHeight / 2 - 3,
+          boldFont,
+          6,
+          COLORS.textSoft,
+        );
       }
     }
 
     /*
-    |--------------------------------------------------------------------------
-    | QR - CUARTO BLOQUE
-    |--------------------------------------------------------------------------
-    */
+     * ============================================================
+     * INFORMACIÓN DERECHA
+     * ============================================================
+     */
 
-    const qrX = MARGIN + 2 * (thumbnailWidth + thumbnailGap);
+    const titleY = galleryTop - 2;
+
+    /*
+     * El QR estará en la ficha de contacto,
+     * por lo que el título puede ocupar todo
+     * el ancho disponible.
+     */
+
+    const title = truncateText(property.title || "Propiedad", 48);
+
+    drawText(page, title, RIGHT_X, titleY, boldFont, 17, COLORS.navyDark);
+
+    const addressParts = [
+      property.address,
+      property.city,
+      property.province,
+    ].filter(Boolean);
+
+    const address = addressParts.join(", ");
+
+    if (address) {
+      drawText(
+        page,
+        truncateText(address, 65),
+        RIGHT_X,
+        titleY - 22,
+        regularFont,
+        7.5,
+        COLORS.textSoft,
+      );
+    }
+
+    /*
+     * ============================================================
+     * PRECIO
+     * ============================================================
+     */
+
+    const priceBoxHeight = 65;
+
+    const priceBoxY = galleryTop - 105;
 
     page.drawRectangle({
-      x: qrX,
-      y: thumbnailsY,
-      width: thumbnailWidth,
-      height: thumbnailHeight,
+      x: RIGHT_X,
+      y: priceBoxY,
+      width: RIGHT_WIDTH,
+      height: priceBoxHeight,
       color: COLORS.navy,
     });
+
+    drawText(
+      page,
+      "VALOR",
+      RIGHT_X + 14,
+      priceBoxY + priceBoxHeight - 19,
+      regularFont,
+      6.5,
+      COLORS.white,
+    );
+
+    drawText(
+      page,
+      formatPropertyPrice(property),
+      RIGHT_X + 14,
+      priceBoxY + 19,
+      boldFont,
+      19,
+      COLORS.white,
+    );
+
+    /*
+     * ============================================================
+     * CARACTERÍSTICAS
+     * ============================================================
+     */
+
+    const cardsGap = 8;
+
+    const cardsWidth = (RIGHT_WIDTH - cardsGap) / 2;
+
+    const cardHeight = 53;
+
+    const cardsTop = priceBoxY - 12;
+
+    /*
+     * Fila 1
+     */
+
+    const row1Y = cardsTop - cardHeight;
+
+    drawFeatureCard(
+      page,
+      RIGHT_X,
+      row1Y,
+      cardsWidth,
+      cardHeight,
+      "Ambientes",
+      property.rooms != null ? String(property.rooms) : "-",
+      regularFont,
+      boldFont,
+    );
+
+    drawFeatureCard(
+      page,
+      RIGHT_X + cardsWidth + cardsGap,
+      row1Y,
+      cardsWidth,
+      cardHeight,
+      "Dormitorios",
+      property.bedrooms != null ? String(property.bedrooms) : "-",
+      regularFont,
+      boldFont,
+    );
+
+    /*
+     * Fila 2
+     */
+
+    const row2Y = row1Y - 7 - cardHeight;
+
+    drawFeatureCard(
+      page,
+      RIGHT_X,
+      row2Y,
+      cardsWidth,
+      cardHeight,
+      "Baños",
+      property.bathrooms != null ? String(property.bathrooms) : "-",
+      regularFont,
+      boldFont,
+    );
+
+    drawFeatureCard(
+      page,
+      RIGHT_X + cardsWidth + cardsGap,
+      row2Y,
+      cardsWidth,
+      cardHeight,
+      "Sup. total",
+      property.surface_total != null ? `${property.surface_total} m²` : "-",
+      regularFont,
+      boldFont,
+    );
+
+    /*
+     * Fila 3
+     */
+
+    const row3Y = row2Y - 7 - cardHeight;
+
+    drawFeatureCard(
+      page,
+      RIGHT_X,
+      row3Y,
+      cardsWidth,
+      cardHeight,
+      "Sup. cubierta",
+      property.surface_covered != null ? `${property.surface_covered} m²` : "-",
+      regularFont,
+      boldFont,
+    );
+
+    drawFeatureCard(
+      page,
+      RIGHT_X + cardsWidth + cardsGap,
+      row3Y,
+      cardsWidth,
+      cardHeight,
+      "Estado",
+      property.condition ? truncateText(property.condition, 15) : "-",
+      regularFont,
+      boldFont,
+    );
+
+    /*
+     * ============================================================
+     * CONTACTO + QR
+     * ============================================================
+     */
+
+    const contactHeight = 78;
+    const contactY = MARGIN;
+
+    page.drawRectangle({
+      x: RIGHT_X,
+      y: contactY,
+      width: RIGHT_WIDTH,
+      height: contactHeight,
+      color: COLORS.blueLight,
+      borderColor: COLORS.border,
+      borderWidth: 0.8,
+    });
+
+    /*
+     * Área de texto del contacto.
+     *
+     * Dejamos espacio a la derecha para el QR.
+     */
+
+    const qrAreaWidth = 76;
+
+    const contactTextWidth = RIGHT_WIDTH - qrAreaWidth - 12;
+
+    drawText(
+      page,
+      "CONTACTO",
+      RIGHT_X + 12,
+      contactY + contactHeight - 17,
+      boldFont,
+      6.5,
+      COLORS.navy,
+    );
+
+    drawText(
+      page,
+      truncateText(CONTACT.name, 34),
+      RIGHT_X + 12,
+      contactY + 43,
+      boldFont,
+      7.5,
+      COLORS.text,
+    );
+
+    drawText(
+      page,
+      CONTACT.phone,
+      RIGHT_X + 12,
+      contactY + 30,
+      regularFont,
+      7,
+      COLORS.textSoft,
+    );
+
+    drawText(
+      page,
+      truncateText(CONTACT.email, 38),
+      RIGHT_X + 12,
+      contactY + 18,
+      regularFont,
+      6.3,
+      COLORS.textSoft,
+    );
+
+    /*
+     * ============================================================
+     * QR
+     * ============================================================
+     *
+     * Ahora está dentro de la ficha derecha,
+     * en lugar de ocupar una miniatura.
+     */
 
     const propertyUrl = `${req.nextUrl.origin}/propiedades/${property.id}`;
 
@@ -651,11 +832,24 @@ export async function GET(
 
     const qrImage = await pdf.embedPng(qrBuffer);
 
-    const qrSize = 57;
+    const qrSize = 48;
+
+    const qrX =
+      RIGHT_X + RIGHT_WIDTH - qrAreaWidth + (qrAreaWidth - qrSize) / 2;
+
+    const qrY = contactY + 20;
+
+    page.drawRectangle({
+      x: RIGHT_X + RIGHT_WIDTH - qrAreaWidth,
+      y: contactY + 7,
+      width: qrAreaWidth - 7,
+      height: contactHeight - 14,
+      color: COLORS.white,
+    });
 
     page.drawImage(qrImage, {
-      x: qrX + (thumbnailWidth - qrSize) / 2,
-      y: thumbnailsY + 17,
+      x: qrX,
+      y: qrY,
       width: qrSize,
       height: qrSize,
     });
@@ -663,302 +857,34 @@ export async function GET(
     drawText(
       page,
       "VER PUBLICACIÓN",
-      qrX + thumbnailWidth / 2 - 34,
-      thumbnailsY + 7,
+      RIGHT_X + RIGHT_WIDTH - qrAreaWidth + 9,
+      contactY + 9,
       boldFont,
-      5.5,
-      COLORS.white,
+      5.2,
+      COLORS.navy,
     );
 
     /*
-    |--------------------------------------------------------------------------
-    | TÍTULO
-    |--------------------------------------------------------------------------
-    */
-
-    const title = truncateText(property.title || "Propiedad", 34);
-
-    drawText(page, title, RIGHT_X, galleryTop - 2, boldFont, 17, COLORS.text);
-
-    /*
-    |--------------------------------------------------------------------------
-    | UBICACIÓN
-    |--------------------------------------------------------------------------
-    */
-
-    const addressParts = [
-      property.address,
-      property.city,
-      property.province,
-    ].filter(Boolean);
-
-    const address = truncateText(addressParts.join(", "), 48);
+     * ============================================================
+     * CÓDIGO DE PROPIEDAD
+     * ============================================================
+     */
 
     drawText(
       page,
-      address,
-      RIGHT_X,
-      galleryTop - 22,
+      `Código: ${property.id}`,
+      MARGIN,
+      8,
       regularFont,
-      7.5,
+      5.5,
       COLORS.textSoft,
     );
 
     /*
-    |--------------------------------------------------------------------------
-    | PRECIO
-    |--------------------------------------------------------------------------
-    */
-
-    const priceBoxY = galleryTop - 105;
-
-    page.drawRectangle({
-      x: RIGHT_X,
-      y: priceBoxY,
-      width: RIGHT_WIDTH,
-      height: 65,
-      color: COLORS.blueLight,
-    });
-
-    drawText(
-      page,
-      "PRECIO",
-      RIGHT_X + 13,
-      priceBoxY + 47,
-      boldFont,
-      7,
-      COLORS.navy,
-    );
-
-    const price = formatPropertyPrice(property);
-
-    drawText(
-      page,
-      price,
-      RIGHT_X + 13,
-      priceBoxY + 22,
-      boldFont,
-      23,
-      COLORS.navy,
-    );
-
-    /*
-    |--------------------------------------------------------------------------
-    | CARACTERÍSTICAS
-    |--------------------------------------------------------------------------
-    */
-
-    const cardsTop = priceBoxY - 12;
-
-    const cardGap = 7;
-
-    const cardWidth = (RIGHT_WIDTH - cardGap) / 2;
-
-    const cardHeight = 53;
-
-    let cardY = cardsTop - cardHeight;
-
-    /*
-    | SUPERFICIE
-    */
-
-    const rawSurface = property.surface_covered ?? property.surface_total;
-    const surface =
-      rawSurface !== null && rawSurface !== undefined
-        ? Number(rawSurface)
-        : null;
-
-    drawFeatureCard(
-      page,
-      "Superficie",
-      surface !== null ? `${surface} m²` : "-",
-      RIGHT_X,
-      cardY,
-      cardWidth,
-      cardHeight,
-      regularFont,
-      boldFont,
-    );
-
-    /*
-    | AMBIENTES
-    */
-
-    drawFeatureCard(
-      page,
-      "Ambientes",
-      property.rooms !== null && property.rooms !== undefined
-        ? String(property.rooms)
-        : "-",
-      RIGHT_X + cardWidth + cardGap,
-      cardY,
-      cardWidth,
-      cardHeight,
-      regularFont,
-      boldFont,
-    );
-
-    /*
-    | DORMITORIOS
-    */
-
-    cardY -= cardHeight + cardGap;
-
-    drawFeatureCard(
-      page,
-      "Dormitorios",
-      property.bedrooms !== null && property.bedrooms !== undefined
-        ? String(property.bedrooms)
-        : "-",
-      RIGHT_X,
-      cardY,
-      cardWidth,
-      cardHeight,
-      regularFont,
-      boldFont,
-    );
-
-    /*
-    | BAÑOS
-    */
-
-    drawFeatureCard(
-      page,
-      "Baños",
-      property.bathrooms !== null && property.bathrooms !== undefined
-        ? String(property.bathrooms)
-        : "-",
-      RIGHT_X + cardWidth + cardGap,
-      cardY,
-      cardWidth,
-      cardHeight,
-      regularFont,
-      boldFont,
-    );
-
-    /*
-    | COCHERA
-    */
-
-    cardY -= cardHeight + cardGap;
-
-    drawFeatureCard(
-      page,
-      "Cochera",
-      property.garage ? "Sí" : "No",
-      RIGHT_X,
-      cardY,
-      cardWidth,
-      cardHeight,
-      regularFont,
-      boldFont,
-    );
-
-    /*
-    | ESTADO
-    */
-
-    const rawCondition = property.condition ? property.condition.trim() : "";
-    const formattedCondition = rawCondition
-      ? rawCondition.charAt(0).toUpperCase() +
-        rawCondition.slice(1).toLowerCase()
-      : "-";
-
-    drawFeatureCard(
-      page,
-      "Estado",
-      formattedCondition,
-      RIGHT_X + cardWidth + cardGap,
-      cardY,
-      cardWidth,
-      cardHeight,
-      regularFont,
-      boldFont,
-    );
-
-    /*
-    |--------------------------------------------------------------------------
-    | CONTACTO
-    |--------------------------------------------------------------------------
-    */
-
-    const contactHeight = 72;
-
-    const contactY = MARGIN;
-
-    page.drawRectangle({
-      x: RIGHT_X,
-      y: contactY,
-      width: RIGHT_WIDTH,
-      height: contactHeight,
-      color: COLORS.navy,
-    });
-
-    drawText(
-      page,
-      "CONTACTO",
-      RIGHT_X + 13,
-      contactY + 54,
-      boldFont,
-      6.5,
-      rgb(0.75, 0.84, 0.92),
-    );
-
-    drawText(
-      page,
-      CONTACT.name,
-      RIGHT_X + 13,
-      contactY + 37,
-      boldFont,
-      9,
-      COLORS.white,
-    );
-
-    drawText(
-      page,
-      CONTACT.phone,
-      RIGHT_X + 13,
-      contactY + 21,
-      regularFont,
-      8,
-      COLORS.white,
-    );
-
-    drawText(
-      page,
-      CONTACT.email,
-      RIGHT_X + 13,
-      contactY + 8,
-      regularFont,
-      6.2,
-      rgb(0.82, 0.88, 0.94),
-    );
-
-    /*
-    |--------------------------------------------------------------------------
-    | CÓDIGO
-    |--------------------------------------------------------------------------
-    */
-
-    const code = `Código de propiedad: ${property.id}`;
-
-    const codeWidth = regularFont.widthOfTextAtSize(code, 5.5);
-
-    drawText(
-      page,
-      code,
-      RIGHT_X + RIGHT_WIDTH - codeWidth - 10,
-      contactY + 8,
-      regularFont,
-      5.5,
-      rgb(0.7, 0.8, 0.9),
-    );
-
-    /*
-    |--------------------------------------------------------------------------
-    | GENERAR
-    |--------------------------------------------------------------------------
-    */
+     * ============================================================
+     * GENERAR PDF
+     * ============================================================
+     */
 
     const pdfBytes = await pdf.save();
 
@@ -973,11 +899,11 @@ export async function GET(
       },
     });
   } catch (error) {
-    console.error("Error generando ficha PDF:", error);
+    console.error("Error generando PDF de propiedad:", error);
 
     return NextResponse.json(
       {
-        error: "Error al generar la ficha PDF",
+        error: "No se pudo generar el PDF de la propiedad",
       },
       {
         status: 500,
