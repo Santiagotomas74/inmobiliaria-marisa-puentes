@@ -23,6 +23,9 @@
     "sharp": "^0.35.4",
     "sweetalert2": "^11.26.23"
   },
+  "optionalDependencies": {
+    "@img/sharp-linux-x64": "^0.33.5"
+  },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
     "@types/jsonwebtoken": "^9.0.10",
