@@ -43,10 +43,25 @@ type ImageData = {
   type: "jpg" | "png";
 };
 
+/*
+ * ============================================================
+ * TAMAÑO
+ * ============================================================
+ *
+ * 270 x 195 mm
+ * Apaisado
+ */
+
 const PAGE_WIDTH = (270 * 72) / 25.4;
 const PAGE_HEIGHT = (195 * 72) / 25.4;
 
 const MARGIN = 18;
+
+/*
+ * ============================================================
+ * COLORES
+ * ============================================================
+ */
 
 const COLORS = {
   navy: rgb(0.075, 0.19, 0.34),
@@ -58,6 +73,12 @@ const COLORS = {
   border: rgb(0.84, 0.87, 0.91),
   white: rgb(1, 1, 1),
 };
+
+/*
+ * ============================================================
+ * CONTACTO
+ * ============================================================
+ */
 
 const CONTACT = {
   name: "MARISA PUENTES PROPIEDADES",
@@ -72,21 +93,7 @@ const CONTACT = {
  *
  * NO usamos Sharp.
  *
- * IMPORTANTE:
- *
- * No usamos "a_auto".
- *
- * Esto significa que Cloudinary NO va a rotar la imagen
- * automáticamente basándose en EXIF.
- *
- * La imagen se descarga respetando su orientación física
- * original.
- *
- * Solamente:
- *
- *   - f_jpg  -> convierte a JPEG
- *   - q_auto -> optimiza calidad/peso
- *   - w_1600,h_1200,c_limit -> limita tamaño
+ * Tampoco usamos a_auto.
  */
 
 function getCloudinaryUrl(url: string): string {
@@ -115,10 +122,12 @@ function getCloudinaryUrl(url: string): string {
     const afterUpload = pathname.substring(uploadIndex + uploadMarker.length);
 
     /*
+     * IMPORTANTE:
+     *
      * NO usamos a_auto.
      *
-     * De esta manera Cloudinary no intenta girar
-     * imágenes verticales automáticamente.
+     * Así evitamos que Cloudinary cambie
+     * automáticamente la orientación.
      */
 
     const transformation = "c_limit,w_1600,h_1200,f_jpg,q_auto";
@@ -169,6 +178,7 @@ async function downloadImage(url: string): Promise<ImageData | null> {
     ).toLowerCase();
 
     const arrayBuffer = await response.arrayBuffer();
+
     const buffer = Buffer.from(arrayBuffer);
 
     if (!buffer.length) {
@@ -179,15 +189,6 @@ async function downloadImage(url: string): Promise<ImageData | null> {
 
     /*
      * JPEG
-     *
-     * Comprobamos específicamente JPEG.
-     *
-     * NO usamos:
-     *
-     * contentType.includes("image")
-     *
-     * porque eso también puede detectar WebP, AVIF,
-     * etc. y luego pdf-lib intentaría leerlos como JPEG.
      */
 
     if (
@@ -212,10 +213,7 @@ async function downloadImage(url: string): Promise<ImageData | null> {
     }
 
     /*
-     * Detección por bytes.
-     *
-     * Esto sirve si el servidor no manda correctamente
-     * el Content-Type.
+     * Detección por bytes
      */
 
     // JPEG
@@ -268,7 +266,11 @@ async function downloadImage(url: string): Promise<ImageData | null> {
  */
 
 function formatPropertyPrice(property: Property): string {
-  const operation = (property.operation || "").toLowerCase();
+  const operation = (property.operation || "").toLowerCase().trim();
+
+  /*
+   * ALQUILER
+   */
 
   if (
     operation.includes("alquiler") ||
@@ -284,6 +286,10 @@ function formatPropertyPrice(property: Property): string {
     }
   }
 
+  /*
+   * VENTA
+   */
+
   if (operation.includes("venta") || operation.includes("sale")) {
     if (property.price_usd) {
       return `USD ${Number(property.price_usd).toLocaleString("es-AR")}`;
@@ -293,6 +299,10 @@ function formatPropertyPrice(property: Property): string {
       return `USD ${Number(property.price).toLocaleString("es-AR")}`;
     }
   }
+
+  /*
+   * FALLBACK
+   */
 
   if (property.price_usd) {
     return `USD ${Number(property.price_usd).toLocaleString("es-AR")}`;
@@ -348,12 +358,7 @@ function truncateText(text: string, maxLength: number): string {
  * IMAGEN PROPORCIONAL
  * ============================================================
  *
- * IMPORTANTE:
- *
- * Esta función NO rota la imagen.
- *
- * Solamente calcula cómo colocarla dentro del espacio
- * disponible manteniendo su proporción.
+ * No rota imágenes.
  */
 
 function drawImageFit(
@@ -414,22 +419,31 @@ function drawFeatureCard(
     height,
     color: COLORS.blueLighter,
     borderColor: COLORS.border,
-    borderWidth: 0.8,
+    borderWidth: 0.9,
   });
+
+  /*
+   * LABEL
+   */
 
   drawText(
     page,
     label.toUpperCase(),
-    x + 10,
-    y + height - 16,
+    x + 11,
+    y + height - 17,
     font,
-    6,
+    7.5,
     COLORS.textSoft,
   );
 
-  drawText(page, value, x + 10, y + 12, boldFont, 11, COLORS.navy);
-}
+  /*
+   * VALOR
+   *
+   * Mucho más visible para impresión/vidriera.
+   */
 
+  drawText(page, value, x + 11, y + 13, boldFont, 15.5, COLORS.navy);
+}
 /*
  * ============================================================
  * GET
@@ -524,11 +538,7 @@ export async function GET(
       });
 
     /*
-     * Mantener exactamente el mismo orden:
-     *
-     * 1. Imagen principal
-     * 2. Resto según position
-     *
+     * Principal primero.
      * Máximo 4 imágenes.
      */
 
@@ -539,7 +549,7 @@ export async function GET(
 
     /*
      * ========================================================
-     * DESCARGAR IMÁGENES EN PARALELO
+     * DESCARGAR IMÁGENES
      * ========================================================
      */
 
@@ -595,7 +605,7 @@ export async function GET(
      * ========================================================
      */
 
-    const HEADER_HEIGHT = 46;
+    const HEADER_HEIGHT = 43;
 
     page.drawRectangle({
       x: 0,
@@ -605,14 +615,20 @@ export async function GET(
       color: COLORS.navy,
     });
 
+    /*
+     * ========================================================
+     * LOGO
+     * ========================================================
+     */
+
     if (logoImage) {
       drawImageFit(
         page,
         logoImage,
         MARGIN,
-        PAGE_HEIGHT - HEADER_HEIGHT + 7,
+        PAGE_HEIGHT - HEADER_HEIGHT + 6,
         34,
-        32,
+        31,
       );
     }
 
@@ -622,9 +638,9 @@ export async function GET(
       page,
       "MARISA PUENTES",
       brandX,
-      PAGE_HEIGHT - 22,
+      PAGE_HEIGHT - 20,
       boldFont,
-      11,
+      11.5,
       COLORS.white,
     );
 
@@ -632,33 +648,44 @@ export async function GET(
       page,
       "PROPIEDADES",
       brandX,
-      PAGE_HEIGHT - 34,
+      PAGE_HEIGHT - 32,
       regularFont,
       6.5,
       COLORS.white,
     );
 
+    /*
+     * ========================================================
+     * OPERACIÓN
+     * ========================================================
+     */
+
     const operationText = (property.operation || "PROPIEDAD").toUpperCase();
 
-    const operationWidth = boldFont.widthOfTextAtSize(operationText, 7);
+    const operationFontSize = 8;
 
-    const operationBoxWidth = operationWidth + 22;
+    const operationWidth = boldFont.widthOfTextAtSize(
+      operationText,
+      operationFontSize,
+    );
+
+    const operationBoxWidth = operationWidth + 24;
 
     page.drawRectangle({
       x: PAGE_WIDTH - MARGIN - operationBoxWidth,
-      y: PAGE_HEIGHT - 35,
+      y: PAGE_HEIGHT - 33,
       width: operationBoxWidth,
-      height: 20,
+      height: 21,
       color: COLORS.white,
     });
 
     drawText(
       page,
       operationText,
-      PAGE_WIDTH - MARGIN - operationBoxWidth + 11,
-      PAGE_HEIGHT - 28,
+      PAGE_WIDTH - MARGIN - operationBoxWidth + 12,
+      PAGE_HEIGHT - 26,
       boldFont,
-      7,
+      operationFontSize,
       COLORS.navy,
     );
 
@@ -666,14 +693,29 @@ export async function GET(
      * ========================================================
      * LAYOUT PRINCIPAL
      * ========================================================
+     *
+     * Se le da más espacio a la información.
      */
 
-    const contentTop = PAGE_HEIGHT - HEADER_HEIGHT - 10;
+    const contentTop = PAGE_HEIGHT - HEADER_HEIGHT - 8;
 
     const galleryTop = contentTop;
 
-    const LEFT_WIDTH = 425;
-    const GAP = 20;
+    /*
+     * ANTES:
+     *
+     * LEFT_WIDTH = 425
+     * GAP = 20
+     *
+     * AHORA:
+     *
+     * Galería ligeramente más angosta.
+     * Información derecha más grande.
+     */
+
+    const LEFT_WIDTH = 395;
+
+    const GAP = 15;
 
     const RIGHT_X = MARGIN + LEFT_WIDTH + GAP;
 
@@ -685,15 +727,28 @@ export async function GET(
      * ========================================================
      */
 
-    const mainImageHeight = 290;
+    /*
+     * Imagen principal:
+     *
+     * Un poco más baja para poder
+     * aumentar visualmente las miniaturas.
+     */
+
+    const mainImageHeight = 255;
 
     const thumbnailGap = 7;
 
     const thumbnailWidth = (LEFT_WIDTH - thumbnailGap * 2) / 3;
 
-    const thumbnailHeight = 82;
+    const thumbnailHeight = 78;
 
     const mainImageY = galleryTop - mainImageHeight;
+
+    /*
+     * ========================================================
+     * IMAGEN PRINCIPAL
+     * ========================================================
+     */
 
     page.drawRectangle({
       x: MARGIN,
@@ -726,7 +781,13 @@ export async function GET(
       );
     }
 
-    const thumbnailsY = mainImageY - 8 - thumbnailHeight;
+    /*
+     * ========================================================
+     * MINIATURAS
+     * ========================================================
+     */
+
+    const thumbnailsY = mainImageY - 7 - thumbnailHeight;
 
     for (let i = 0; i < 3; i++) {
       const image = images[i + 1];
@@ -771,11 +832,34 @@ export async function GET(
      * ========================================================
      */
 
-    const titleY = galleryTop - 2;
+    /*
+     * ========================================================
+     * TÍTULO
+     * ========================================================
+     */
+
+    /*
+     * ========================================================
+     * TÍTULO
+     * ========================================================
+     *
+     * Lo bajamos bastante respecto del header azul.
+     *
+     * Esto es especialmente importante porque el tamaño
+     * del título ahora es mayor.
+     */
+
+    const titleY = PAGE_HEIGHT - HEADER_HEIGHT - 30;
 
     const title = truncateText(property.title || "Propiedad", 48);
 
-    drawText(page, title, RIGHT_X, titleY, boldFont, 17, COLORS.navyDark);
+    drawText(page, title, RIGHT_X, titleY, boldFont, 24, COLORS.navyDark);
+
+    /*
+     * ========================================================
+     * DIRECCIÓN
+     * ========================================================
+     */
 
     const addressParts = [
       property.address,
@@ -788,24 +872,28 @@ export async function GET(
     if (address) {
       drawText(
         page,
-        truncateText(address, 65),
+        truncateText(address, 68),
         RIGHT_X,
-        titleY - 22,
+        titleY - 27,
         regularFont,
-        7.5,
+        10,
         COLORS.textSoft,
       );
     }
-
     /*
      * ========================================================
      * PRECIO
      * ========================================================
      */
 
-    const priceBoxHeight = 65;
+    const priceBoxHeight = 70;
 
-    const priceBoxY = galleryTop - 105;
+    /*
+     * Más separación respecto del título
+     * y de la dirección.
+     */
+
+    const priceBoxY = titleY - 105;
 
     page.drawRectangle({
       x: RIGHT_X,
@@ -814,24 +902,25 @@ export async function GET(
       height: priceBoxHeight,
       color: COLORS.navy,
     });
-
     drawText(
       page,
       "VALOR",
       RIGHT_X + 14,
       priceBoxY + priceBoxHeight - 19,
       regularFont,
-      6.5,
+      8,
       COLORS.white,
     );
 
+    const formattedPrice = formatPropertyPrice(property);
+
     drawText(
       page,
-      formatPropertyPrice(property),
+      formattedPrice,
       RIGHT_X + 14,
-      priceBoxY + 19,
+      priceBoxY + 18,
       boldFont,
-      19,
+      25,
       COLORS.white,
     );
 
@@ -841,15 +930,19 @@ export async function GET(
      * ========================================================
      */
 
-    const cardsGap = 8;
+    const cardsGap = 7;
 
     const cardsWidth = (RIGHT_WIDTH - cardsGap) / 2;
 
-    const cardHeight = 53;
+    const cardHeight = 55;
 
-    const cardsTop = priceBoxY - 12;
+    const cardsTop = priceBoxY - 10;
 
     const row1Y = cardsTop - cardHeight;
+
+    /*
+     * AMBIENTES
+     */
 
     drawFeatureCard(
       page,
@@ -863,6 +956,10 @@ export async function GET(
       boldFont,
     );
 
+    /*
+     * DORMITORIOS
+     */
+
     drawFeatureCard(
       page,
       RIGHT_X + cardsWidth + cardsGap,
@@ -875,7 +972,15 @@ export async function GET(
       boldFont,
     );
 
+    /*
+     * FILA 2
+     */
+
     const row2Y = row1Y - 7 - cardHeight;
+
+    /*
+     * BAÑOS
+     */
 
     drawFeatureCard(
       page,
@@ -889,6 +994,10 @@ export async function GET(
       boldFont,
     );
 
+    /*
+     * SUPERFICIE TOTAL
+     */
+
     drawFeatureCard(
       page,
       RIGHT_X + cardsWidth + cardsGap,
@@ -901,7 +1010,15 @@ export async function GET(
       boldFont,
     );
 
+    /*
+     * FILA 3
+     */
+
     const row3Y = row2Y - 7 - cardHeight;
+
+    /*
+     * SUPERFICIE CUBIERTA
+     */
 
     drawFeatureCard(
       page,
@@ -915,6 +1032,10 @@ export async function GET(
       boldFont,
     );
 
+    /*
+     * ESTADO
+     */
+
     drawFeatureCard(
       page,
       RIGHT_X + cardsWidth + cardsGap,
@@ -922,20 +1043,28 @@ export async function GET(
       cardsWidth,
       cardHeight,
       "Estado",
-      property.condition ? truncateText(property.condition, 15) : "-",
+      property.condition ? truncateText(property.condition, 16) : "-",
       regularFont,
       boldFont,
     );
 
     /*
      * ========================================================
-     * CONTACTO + QR
+     * CONTACTO
      * ========================================================
+     *
+     * IMPORTANTE:
+     *
+     * Antes estaba pegado al fondo de la página,
+     * generando un espacio enorme entre las tarjetas
+     * y el contacto.
+     *
+     * Ahora queda inmediatamente debajo.
      */
 
-    const contactHeight = 78;
+    const contactHeight = 76;
 
-    const contactY = MARGIN;
+    const contactY = row3Y - 8 - contactHeight;
 
     page.drawRectangle({
       x: RIGHT_X,
@@ -947,7 +1076,13 @@ export async function GET(
       borderWidth: 0.8,
     });
 
-    const qrAreaWidth = 76;
+    /*
+     * ========================================================
+     * CONTACTO - TEXTO
+     * ========================================================
+     */
+
+    const qrAreaWidth = 82;
 
     drawText(
       page,
@@ -955,17 +1090,17 @@ export async function GET(
       RIGHT_X + 12,
       contactY + contactHeight - 17,
       boldFont,
-      6.5,
+      7.5,
       COLORS.navy,
     );
 
     drawText(
       page,
-      truncateText(CONTACT.name, 34),
+      truncateText(CONTACT.name, 36),
       RIGHT_X + 12,
-      contactY + 43,
+      contactY + 44,
       boldFont,
-      7.5,
+      9,
       COLORS.text,
     );
 
@@ -973,9 +1108,9 @@ export async function GET(
       page,
       CONTACT.phone,
       RIGHT_X + 12,
-      contactY + 30,
+      contactY + 28,
       regularFont,
-      7,
+      8,
       COLORS.textSoft,
     );
 
@@ -983,12 +1118,11 @@ export async function GET(
       page,
       truncateText(CONTACT.email, 38),
       RIGHT_X + 12,
-      contactY + 18,
+      contactY + 14,
       regularFont,
-      6.3,
+      6.8,
       COLORS.textSoft,
     );
-
     /*
      * ========================================================
      * QR
@@ -1005,18 +1139,23 @@ export async function GET(
 
     const qrImage = await pdf.embedPng(qrBuffer);
 
-    const qrSize = 48;
+    const qrSize = 60;
 
-    const qrX =
-      RIGHT_X + RIGHT_WIDTH - qrAreaWidth + (qrAreaWidth - qrSize) / 2;
+    const qrContainerX = RIGHT_X + RIGHT_WIDTH - qrAreaWidth;
 
-    const qrY = contactY + 20;
+    const qrX = qrContainerX + (qrAreaWidth - qrSize) / 2;
+
+    const qrY = contactY + 12;
+
+    /*
+     * Fondo QR
+     */
 
     page.drawRectangle({
-      x: RIGHT_X + RIGHT_WIDTH - qrAreaWidth,
-      y: contactY + 7,
-      width: qrAreaWidth - 7,
-      height: contactHeight - 14,
+      x: qrContainerX,
+      y: contactY + 6,
+      width: qrAreaWidth - 4,
+      height: contactHeight - 12,
       color: COLORS.white,
     });
 
@@ -1030,16 +1169,16 @@ export async function GET(
     drawText(
       page,
       "VER PUBLICACIÓN",
-      RIGHT_X + RIGHT_WIDTH - qrAreaWidth + 9,
-      contactY + 9,
+      qrContainerX + 6,
+      contactY + 7,
       boldFont,
-      5.2,
+      5,
       COLORS.navy,
     );
 
     /*
      * ========================================================
-     * CÓDIGO DE PROPIEDAD
+     * CÓDIGO
      * ========================================================
      */
 
